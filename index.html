@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Labyrinthe En-Champ-Thé - App Sécurisée</title>
+  <title>Labyrinthe En-Champ-Thé - App Guichet</title>
 
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -19,7 +19,6 @@
       --rouge-volcan: #C1502E;
       --gris-fond: #EAE6DF;
       --gris-texte: #555555;
-      --gris-repos: #A0A0A0;
       --ombre: 0 6px 15px rgba(0,0,0,0.08);
       --radius-card: 16px;
       --radius-btn: 10px;
@@ -95,7 +94,7 @@
       border: none;
       background: none;
       color: var(--blanc-creme);
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: bold;
       cursor: pointer;
       min-height: 48px;
@@ -211,20 +210,6 @@
 
     details summary { cursor: pointer; font-weight: bold; padding: 12px 16px; background: #EADBCE; border-radius: 12px; margin-top: 15px; color: #333; }
 
-    /* POSTES ET MISSIONS DU JOUR */
-    .role-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #F8F5F0;
-      padding: 14px 18px;
-      border-radius: 14px;
-      border-left: 6px solid var(--vert-vegetal);
-      flex-wrap: wrap;
-      gap: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-    }
-
     .hidden { display: none !important; }
   </style>
 </head>
@@ -263,7 +248,6 @@
     <nav>
       <button class="tab-btn active" onclick="switchTab('tab1', event)">📋 Suivi des tâches</button>
       <button class="tab-btn" onclick="switchTab('tab2', event)">📖 Journal d'accueil</button>
-      <button class="tab-btn" onclick="switchTab('tab3', event)">📌 Rôles & Missions</button>
     </nav>
 
     <main>
@@ -280,7 +264,7 @@
               <div class="form-group">
                 <label>Attribuer à</label>
                 <select id="task-assignee" class="form-control">
-                  <option value="Moi">Moi (Inès)</option>
+                  <option value="Inès">Inès</option>
                   <option value="Yohann">Yohann</option>
                   <option value="Shannone">Shannone</option>
                   <option value="Gérard">Gérard</option>
@@ -305,7 +289,7 @@
 
         <div class="filter-bar">
           <button class="filter-btn active" onclick="filterTasks('Toutes')">Toutes les tâches</button>
-          <button class="filter-btn" onclick="filterTasks('Moi')">Mes tâches (Inès)</button>
+          <button class="filter-btn" onclick="filterTasks('Inès')">Mes tâches (Inès)</button>
           <button class="filter-btn" onclick="filterTasks('Yohann')">Mes tâches (Yohann)</button>
           <button class="filter-btn" onclick="filterTasks('Shannone')">Mes tâches (Shannone)</button>
           <button class="filter-btn" onclick="filterTasks('Gérard')">Mes tâches (Gérard)</button>
@@ -376,21 +360,6 @@
           <div id="archived-messages" style="margin-top: 10px;"></div>
         </details>
       </div>
-
-      <!-- ONGLET 3 : RÔLES & MISSIONS DU JOUR -->
-      <div id="tab3" class="tab-content">
-        <div class="card">
-          <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 18px; flex-wrap: wrap;">
-            <label style="font-weight: bold; font-size: 1rem;">🗓️ Choisir la Date :</label>
-            <input type="date" id="planning-date" class="form-control" style="width: auto; font-weight: bold;" onchange="renderPlanning()">
-          </div>
-
-          <h2>Rôles & Postes de l'équipe du jour</h2>
-          <div id="daily-roles-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
-            <!-- Injecté dynamiquement -->
-          </div>
-        </div>
-      </div>
     </main>
   </div>
 
@@ -441,14 +410,8 @@
         document.getElementById('app-screen').classList.remove('hidden');
         document.getElementById('user-email-display').textContent = session.user.email;
         
-        const dateInput = document.getElementById('planning-date');
-        if (dateInput && !dateInput.value) {
-          dateInput.value = new Date().toISOString().split('T')[0];
-        }
-
         fetchTasks();
         fetchJournal();
-        renderPlanning();
       } else {
         if (session) await db.auth.signOut();
         document.getElementById('login-screen').classList.remove('hidden');
@@ -462,7 +425,6 @@
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       if (event) event.target.classList.add('active');
-      if (tabId === 'tab3') renderPlanning();
     }
 
     // --- TÂCHES ---
@@ -488,7 +450,7 @@
     function renderTasks() {
       const cols = { idees: [], afaire: [], encours: [], fait: [] };
       tasks.forEach(t => {
-        if (currentFilter === 'Toutes' || t.assignee === currentFilter || (currentFilter === 'Moi' && t.assignee === 'Moi')) {
+        if (currentFilter === 'Toutes' || t.assignee === currentFilter) {
           if (cols[t.status]) cols[t.status].push(t);
         }
       });
@@ -612,66 +574,6 @@
         const msg = journal.find(m => m.id === id);
         if (msg) msg.done = isDone;
         renderJournal();
-      }
-    }
-
-    // --- RÔLES ET MISSIONS DU JOUR ---
-    let planningData = {};
-
-    async function fetchPlanning() {
-      const { data, error } = await db.from('planning').select('*');
-      if (!error && data) {
-        planningData = {};
-        data.forEach(item => { planningData[item.key] = item.label; });
-      }
-    }
-
-    async function renderPlanning() {
-      await fetchPlanning();
-      
-      const dateVal = document.getElementById('planning-date').value;
-      const team = [
-        { name: 'Inès', roleDefault: 'Responsable / Gestion' },
-        { name: 'Yohann', roleDefault: 'Guide / Chef d\'équipe' },
-        { name: 'Shannone', roleDefault: 'Guide & Marketing' },
-        { name: 'Gérard', roleDefault: 'Guide' },
-        { name: 'Vincent', roleDefault: 'Guide' }
-      ];
-
-      const rolesOptions = [
-        "🌿 Visites guidées",
-        "💻 Bureau / Marketing",
-        "🎟️ Accueil / Guichet",
-        "📦 Stock & Boutique",
-        "🛠️ Entretien Labyrinthe",
-        "🌴 Repos / CP"
-      ];
-
-      const container = document.getElementById('daily-roles-list');
-      if (!container) return;
-
-      container.innerHTML = team.map(member => {
-        const key = `${dateVal}-${member.name}`;
-        const currentRole = planningData[key] || rolesOptions[0];
-
-        return `
-          <div class="role-row">
-            <div>
-              <strong style="font-size: 1.1rem; color: var(--vert-vegetal);">${member.name}</strong>
-              <div style="font-size: 0.85rem; color: #666;">${member.roleDefault}</div>
-            </div>
-            <select class="form-control" style="width: auto; min-width: 220px; font-weight: bold;" onchange="updateMemberRole('${key}', this.value)">
-              ${rolesOptions.map(opt => `<option value="${opt}" ${currentRole === opt ? 'selected' : ''}>${opt}</option>`).join('')}
-            </select>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function updateMemberRole(key, newRole) {
-      const { error } = await db.from('planning').upsert({ key, status: 'role', label: newRole });
-      if (!error) {
-        planningData[key] = newRole;
       }
     }
 
