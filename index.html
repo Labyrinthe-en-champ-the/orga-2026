@@ -1,1 +1,710 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Labyrinthe En-Champ-Thé - App Sécurisée</title>
 
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --vert-vegetal: #1F4A38;
+      --bois-sombre: #8B5A2B;
+      --bois-clair: #C9A66B;
+      --jaune-the: #E3AC3D;
+      --jaune-clair: #FFF4D0;
+      --blanc-creme: #FBF8F1;
+      --rouge-volcan: #C1502E;
+      --gris-fond: #EAE6DF;
+      --gris-texte: #555555;
+      --gris-repos: #A0A0A0;
+      --ombre: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+    body {
+      background-color: var(--blanc-creme);
+      color: #2C2C2C;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ÉCRAN DE CONNEXION */
+    #login-screen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: var(--vert-vegetal);
+      padding: 20px;
+    }
+
+    .login-card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .login-card h2 {
+      color: var(--vert-vegetal);
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+    }
+
+    /* EN-TÊTE ET NAVIGATION */
+    header {
+      background-color: var(--vert-vegetal);
+      color: var(--blanc-creme);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--ombre);
+    }
+
+    header h1 { font-size: 1.3rem; font-weight: 600; }
+    
+    .header-user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    nav {
+      display: flex;
+      background-color: #163629;
+      box-shadow: var(--ombre);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 15px 10px;
+      border: none;
+      background: none;
+      color: var(--blanc-creme);
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      min-height: 48px;
+      text-align: center;
+    }
+
+    .tab-btn.active {
+      background-color: var(--jaune-the);
+      color: #111;
+    }
+
+    main {
+      flex: 1;
+      padding: 15px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* FORMULAIRES ET BOUTONS */
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: var(--ombre);
+      border: 1px solid #E2DCD2;
+    }
+
+    .card h2 { color: var(--vert-vegetal); font-size: 1.1rem; margin-bottom: 12px; border-bottom: 2px solid var(--jaune-the); padding-bottom: 5px; }
+
+    .form-group { margin-bottom: 12px; text-align: left; }
+    .form-group label { display: block; margin-bottom: 4px; font-weight: bold; font-size: 0.9rem; }
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #CCC;
+      border-radius: 6px;
+      font-size: 1rem;
+      min-height: 44px;
+    }
+
+    .btn {
+      background-color: var(--vert-vegetal);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-danger { background-color: var(--rouge-volcan); }
+    .btn-secondary { background-color: var(--bois-clair); }
+    .btn-logout { background-color: transparent; border: 1px solid white; color: white; padding: 5px 10px; min-height: 32px; font-size: 0.85rem; border-radius: 4px; cursor: pointer; }
+
+    /* FILTRES TÂCHES */
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+    .filter-btn { background-color: #E2DCD2; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 600; min-height: 44px; }
+    .filter-btn.active { background-color: var(--vert-vegetal); color: white; }
+
+    /* KANBAN */
+    .kanban-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; }
+    .kanban-col { background: var(--gris-fond); border-radius: 8px; padding: 12px; }
+    .kanban-col h3 { font-size: 1rem; color: var(--vert-vegetal); margin-bottom: 10px; text-align: center; }
+    .task-card { background: white; border-radius: 6px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid var(--vert-vegetal); }
+    .task-card.urgent { border-left-color: var(--rouge-volcan); }
+    .task-title { font-weight: bold; font-size: 1rem; margin-bottom: 6px; }
+    .task-meta { font-size: 0.85rem; color: var(--gris-texte); margin-bottom: 10px; }
+    .task-actions { display: flex; justify-content: space-between; gap: 5px; }
+    .btn-sm { padding: 6px 10px; font-size: 0.85rem; min-height: 38px; border-radius: 4px; border: none; cursor: pointer; }
+
+    /* JOURNAL */
+    .msg-card { background: white; border-radius: 6px; padding: 12px; margin-bottom: 10px; border-left: 4px solid var(--jaune-the); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .msg-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem; margin-bottom: 6px; }
+    .msg-body { margin-bottom: 10px; font-size: 0.95rem; }
+
+    details summary { cursor: pointer; font-weight: bold; padding: 10px; background: #E2DCD2; border-radius: 6px; margin-top: 15px; }
+
+    /* PLANNING */
+    .planning-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+    .table-container { overflow-x: auto; background: white; border-radius: 8px; box-shadow: var(--ombre); border: 1px solid #CCC; max-width: 100%; }
+    table.planning-table { border-collapse: collapse; width: 100%; min-width: 1000px; text-align: center; font-size: 0.85rem; }
+    table.planning-table th, table.planning-table td { border: 1px solid #DDD; padding: 4px 2px; min-width: 32px; max-width: 38px; height: 38px; position: relative; }
+    table.planning-table th:first-child, table.planning-table td:first-child { position: sticky; left: 0; background: white; z-index: 2; min-width: 120px; text-align: left; padding-left: 8px; font-weight: bold; border-right: 2px solid #888; }
+
+    .bg-weekend { background-color: var(--jaune-clair) !important; }
+    .bg-fermeture { background-color: var(--rouge-volcan) !important; color: white; font-weight: bold; }
+    .bg-vacances { background-color: #8FD14F !important; color: #111; font-weight: bold; }
+    .bg-semaine { background-color: #FFF2CC; font-weight: bold; }
+    .bg-repos { background-color: var(--gris-repos) !important; color: white; }
+    .bg-travail { background-color: #FFFFFF; }
+    .bg-moi { background-color: var(--jaune-the) !important; font-weight: bold; }
+    .tag-label { font-size: 0.7rem; font-weight: bold; display: block; line-height: 1; word-break: break-all; }
+    .cell-clickable { cursor: pointer; user-select: none; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- ÉCRAN DE CONNEXION -->
+  <div id="login-screen">
+    <div class="login-card">
+      <h2>🌿 Connexion Guichet</h2>
+      <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666;">Entrez vos identifiants d'équipe</p>
+      <form id="form-login" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" id="login-email" class="form-control" placeholder="enchampthe@gmail.com" required>
+        </div>
+        <div class="form-group">
+          <label>Mot de passe</label>
+          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+        </div>
+        <p id="login-error" style="color: var(--rouge-volcan); font-size: 0.85rem; margin-bottom: 10px; display: none;"></p>
+        <button type="submit" class="btn" style="width: 100%;">Se connecter</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- APPLICATION COMPLÈTE -->
+  <div id="app-screen" class="hidden">
+    <header>
+      <h1>🌿 Le Labyrinthe En-Champ-Thé</h1>
+      <div class="header-user-info">
+        <span id="user-email-display" style="font-size: 0.85rem; color: #fff;"></span>
+        <button class="btn-logout" onclick="handleLogout()">Déconnexion</button>
+      </div>
+    </header>
+
+    <nav>
+      <button class="tab-btn active" onclick="switchTab('tab1', event)">📋 Suivi des tâches</button>
+      <button class="tab-btn" onclick="switchTab('tab2', event)">📖 Journal d'accueil</button>
+      <button class="tab-btn" onclick="switchTab('tab3', event)">📅 Planning</button>
+    </nav>
+
+    <main>
+      <!-- ONGLET 1 : TÂCHES -->
+      <div id="tab1" class="tab-content active">
+        <div class="card">
+          <h2>Ajouter une tâche</h2>
+          <form id="form-task" onsubmit="addTask(event)">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+              <div class="form-group">
+                <label>Titre de la tâche</label>
+                <input type="text" id="task-title" class="form-control" placeholder="ex: Réapprovisionner le thé" required>
+              </div>
+              <div class="form-group">
+                <label>Attribuer à</label>
+                <select id="task-assignee" class="form-control">
+                  <option value="Moi">Moi (Inès)</option>
+                  <option value="Yohann">Yohann</option>
+                  <option value="Shannone">Shannone</option>
+                  <option value="Gérard">Gérard</option>
+                  <option value="Vincent">Vincent</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Urgence</label>
+                <select id="task-urgency" class="form-control">
+                  <option value="Normal">Normal</option>
+                  <option value="Urgent">⚠️ Urgent</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Créneau prévu</label>
+                <input type="text" id="task-slot" class="form-control" placeholder="ex: Mardi matin">
+              </div>
+            </div>
+            <button type="submit" class="btn" style="margin-top: 5px;">+ Ajouter la tâche</button>
+          </form>
+        </div>
+
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterTasks('Toutes')">Toutes les tâches</button>
+          <button class="filter-btn" onclick="filterTasks('Moi')">Mes tâches (Inès)</button>
+          <button class="filter-btn" onclick="filterTasks('Yohann')">Mes tâches (Yohann)</button>
+          <button class="filter-btn" onclick="filterTasks('Shannone')">Mes tâches (Shannone)</button>
+          <button class="filter-btn" onclick="filterTasks('Gérard')">Mes tâches (Gérard)</button>
+          <button class="filter-btn" onclick="filterTasks('Vincent')">Mes tâches (Vincent)</button>
+        </div>
+
+        <div class="kanban-board">
+          <div class="kanban-col">
+            <h3>💡 Idées / Projets</h3>
+            <div id="col-idees"></div>
+          </div>
+          <div class="kanban-col">
+            <h3>🎯 À faire cette semaine</h3>
+            <div id="col-afaire"></div>
+          </div>
+          <div class="kanban-col">
+            <h3>⏳ En cours</h3>
+            <div id="col-encours"></div>
+          </div>
+          <div class="kanban-col">
+            <h3>✅ C'est fait !</h3>
+            <div id="col-fait"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ONGLET 2 : JOURNAL D'ACCUEIL -->
+      <div id="tab2" class="tab-content">
+        <div class="card">
+          <h2>Nouveau message / Transmission</h2>
+          <form id="form-journal" onsubmit="addJournalMsg(event)">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+              <div class="form-group">
+                <label>De (Mon nom)</label>
+                <select id="msg-author" class="form-control">
+                  <option value="Inès">Inès</option>
+                  <option value="Yohann">Yohann</option>
+                  <option value="Shannone">Shannone</option>
+                  <option value="Gérard">Gérard</option>
+                  <option value="Vincent">Vincent</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Pour (Destinataire)</label>
+                <select id="msg-target" class="form-control">
+                  <option value="Tout le monde">📢 Tout le monde</option>
+                  <option value="Inès">Inès</option>
+                  <option value="Yohann">Yohann</option>
+                  <option value="Shannone">Shannone</option>
+                  <option value="Gérard">Gérard</option>
+                  <option value="Vincent">Vincent</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Message / Retour client</label>
+              <textarea id="msg-text" class="form-control" rows="3" placeholder="Notez ici les remarques clients, oublis, consignes..." required></textarea>
+            </div>
+            <button type="submit" class="btn">+ Publier dans le journal</button>
+          </form>
+        </div>
+
+        <h2>Messages en cours</h2>
+        <div id="active-messages" style="margin-top: 10px;"></div>
+
+        <details>
+          <summary>📂 Voir les messages traités (Archivés)</summary>
+          <div id="archived-messages" style="margin-top: 10px;"></div>
+        </details>
+      </div>
+
+      <!-- ONGLET 3 : PLANNING -->
+      <div id="tab3" class="tab-content">
+        <div class="planning-controls">
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <label><strong>Mois / Année :</strong></label>
+            <input type="month" id="planning-month" class="form-control" value="2026-08" onchange="renderPlanning()">
+          </div>
+          <button class="btn btn-secondary" onclick="openPlanningConfig()">⚙️ Éditer Vacances & Semaines A/B</button>
+        </div>
+
+        <div class="table-container">
+          <table class="planning-table" id="planning-grid">
+            <!-- Injecté dynamiquement -->
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // --- CONFIGURATION SUPABASE ---
+    const SUPABASE_URL = "https://xifeisrncrzlqomogznd.supabase.co/rest/v1/";
+    const SUPABASE_ANON_KEY = "sb_publishable_Lxil2KnGsRLJOw-CdEBgeA_IFz4w_Sq";
+    
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Adresses autorisées uniquement
+    const ALLOWED_EMAILS = ['enchampthe@gmail.com', 'communication@enchampthe.com'];
+
+    // --- AUTHENTIFICATION ---
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value;
+      const errEl = document.getElementById('login-error');
+
+      errEl.style.display = 'none';
+
+      if (!ALLOWED_EMAILS.includes(email)) {
+        errEl.textContent = "Accès refusé : Adresse e-mail non autorisée.";
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const { data, error } = await db.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        errEl.textContent = "Échec de connexion : " + error.message;
+        errEl.style.display = 'block';
+      } else {
+        checkUserSession();
+      }
+    }
+
+    async function handleLogout() {
+      await db.auth.signOut();
+      checkUserSession();
+    }
+
+    async function checkUserSession() {
+      const { data: { session } } = await db.auth.getSession();
+      
+      if (session && ALLOWED_EMAILS.includes(session.user.email.toLowerCase())) {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('app-screen').classList.remove('hidden');
+        document.getElementById('user-email-display').textContent = session.user.email;
+        
+        fetchTasks();
+        fetchJournal();
+        renderPlanning();
+      } else {
+        if (session) await db.auth.signOut();
+        document.getElementById('login-screen').classList.remove('hidden');
+        document.getElementById('app-screen').classList.add('hidden');
+      }
+    }
+
+    // --- NAVIGATION ONGLETS ---
+    function switchTab(tabId, event) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      if (event) event.target.classList.add('active');
+      if (tabId === 'tab3') renderPlanning();
+    }
+
+    // --- TÂCHES ---
+    let tasks = [];
+    let currentFilter = 'Toutes';
+
+    async function fetchTasks() {
+      const { data, error } = await db.from('tasks').select('*');
+      if (!error && data) {
+        tasks = data;
+        renderTasks();
+      }
+    }
+
+    function filterTasks(author) {
+      currentFilter = author;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(author) || (author==='Toutes' && btn.textContent.includes('Toutes')));
+      });
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const cols = { idees: [], afaire: [], encours: [], fait: [] };
+      tasks.forEach(t => {
+        if (currentFilter === 'Toutes' || t.assignee === currentFilter || (currentFilter === 'Moi' && t.assignee === 'Moi')) {
+          if (cols[t.status]) cols[t.status].push(t);
+        }
+      });
+
+      const colIds = { idees: 'col-idees', afaire: 'col-afaire', encours: 'col-encours', fait: 'col-fait' };
+      const statusList = ['idees', 'afaire', 'encours', 'fait'];
+
+      Object.keys(colIds).forEach(status => {
+        const container = document.getElementById(colIds[status]);
+        container.innerHTML = cols[status].map(t => `
+          <div class="task-card ${t.urgency === 'Urgent' ? 'urgent' : ''}">
+            <div class="task-title">${t.urgency === 'Urgent' ? '⚠️ ' : ''}${t.title}</div>
+            <div class="task-meta">👤 ${t.assignee} | 🕒 ${t.slot || 'Non défini'}</div>
+            <div class="task-actions">
+              ${status !== 'idees' ? `<button class="btn-sm btn-secondary" onclick="moveTask(${t.id}, '${statusList[statusList.indexOf(status)-1]}')">◀</button>` : '<span></span>'}
+              <button class="btn-sm btn-danger" onclick="deleteTask(${t.id})">🗑️</button>
+              ${status !== 'fait' ? `<button class="btn-sm btn-secondary" onclick="moveTask(${t.id}, '${statusList[statusList.indexOf(status)+1]}')">▶</button>` : '<span></span>'}
+            </div>
+          </div>
+        `).join('');
+      });
+    }
+
+    async function addTask(e) {
+      e.preventDefault();
+      const newTask = {
+        title: document.getElementById('task-title').value,
+        assignee: document.getElementById('task-assignee').value,
+        urgency: document.getElementById('task-urgency').value,
+        slot: document.getElementById('task-slot').value,
+        status: 'afaire'
+      };
+
+      const { data, error } = await db.from('tasks').insert([newTask]).select();
+      if (!error && data) {
+        tasks.push(data[0]);
+        renderTasks();
+        e.target.reset();
+      }
+    }
+
+    async function moveTask(id, newStatus) {
+      const { error } = await db.from('tasks').update({ status: newStatus }).eq('id', id);
+      if (!error) {
+        const task = tasks.find(t => t.id === id);
+        if (task) task.status = newStatus;
+        renderTasks();
+      }
+    }
+
+    async function deleteTask(id) {
+      const { error } = await db.from('tasks').delete().eq('id', id);
+      if (!error) {
+        tasks = tasks.filter(t => t.id !== id);
+        renderTasks();
+      }
+    }
+
+    // --- JOURNAL ---
+    let journal = [];
+
+    async function fetchJournal() {
+      const { data, error } = await db.from('journal').select('*').order('id', { ascending: false });
+      if (!error && data) {
+        journal = data;
+        renderJournal();
+      }
+    }
+
+    function renderJournal() {
+      const activeDiv = document.getElementById('active-messages');
+      const archivedDiv = document.getElementById('archived-messages');
+
+      const active = journal.filter(m => !m.done);
+      const archived = journal.filter(m => m.done);
+
+      activeDiv.innerHTML = active.map(m => `
+        <div class="msg-card">
+          <div class="msg-header">
+            <span>De : ${m.author} ➡️ Pour : ${m.target}</span>
+            <small>${m.date}</small>
+          </div>
+          <div class="msg-body">${m.text}</div>
+          <button class="btn-sm btn-secondary" onclick="toggleMsgDone(${m.id}, true)">✅ Marquer comme traité</button>
+        </div>
+      `).join('') || '<p style="color:#777">Aucun message en cours.</p>';
+
+      archivedDiv.innerHTML = archived.map(m => `
+        <div class="msg-card" style="opacity: 0.7;">
+          <div class="msg-header">
+            <span>De : ${m.author} ➡️ Pour : ${m.target}</span>
+            <small>${m.date}</small>
+          </div>
+          <div class="msg-body">${m.text}</div>
+          <button class="btn-sm btn-secondary" onclick="toggleMsgDone(${m.id}, false)">↩️ Réactiver</button>
+        </div>
+      `).join('') || '<p style="color:#777">Aucun message archivé.</p>';
+    }
+
+    async function addJournalMsg(e) {
+      e.preventDefault();
+      const newMsg = {
+        author: document.getElementById('msg-author').value,
+        target: document.getElementById('msg-target').value,
+        text: document.getElementById('msg-text').value,
+        date: new Date().toLocaleDateString('fr-FR'),
+        done: false
+      };
+
+      const { data, error } = await db.from('journal').insert([newMsg]).select();
+      if (!error && data) {
+        journal.unshift(data[0]);
+        renderJournal();
+        document.getElementById('msg-text').value = '';
+      }
+    }
+
+    async function toggleMsgDone(id, isDone) {
+      const { error } = await db.from('journal').update({ done: isDone }).eq('id', id);
+      if (!error) {
+        const msg = journal.find(m => m.id === id);
+        if (msg) msg.done = isDone;
+        renderJournal();
+      }
+    }
+
+    // --- PLANNING ---
+    let planningData = {};
+    let configVacances = { start: '2026-08-01', end: '2026-08-16' };
+    let configWeekA = ['2026-08-01', '2026-08-09'];
+    let ferieDays = ['2026-08-15'];
+
+    async function fetchPlanning() {
+      const { data, error } = await db.from('planning').select('*');
+      if (!error && data) {
+        planningData = {};
+        data.forEach(item => { planningData[item.key] = { status: item.status, label: item.label }; });
+      }
+    }
+
+    async function renderPlanning() {
+      await fetchPlanning();
+      
+      const monthVal = document.getElementById('planning-month').value;
+      const [year, month] = monthVal.split('-').map(Number);
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const daysOfWeek = ['DI', 'LU', 'MA', 'ME', 'JE', 'VE', 'SA'];
+
+      let html = '';
+
+      html += '<tr><th>Équipe \\ Jour</th>';
+      for (let d = 1; d <= daysInMonth; d++) { html += `<th>${d}</th>`; }
+      html += '</tr>';
+
+      html += '<tr><th>Jour</th>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const dayOfWeek = daysOfWeek[new Date(year, month - 1, d).getDay()];
+        const isWeekend = dayOfWeek === 'SA' || dayOfWeek === 'DI';
+        const isFerie = ferieDays.includes(dateStr);
+        const bgClass = isFerie ? 'bg-fermeture' : (isWeekend ? 'bg-weekend' : '');
+        html += `<td class="${bgClass}">${dayOfWeek}</td>`;
+      }
+      html += '</tr>';
+
+      html += '<tr><th style="color:var(--vert-vegetal)">Vacances</th>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const inVacances = dateStr >= configVacances.start && dateStr <= configVacances.end;
+        html += `<td class="${inVacances ? 'bg-vacances' : ''}">${inVacances ? 'VACANCES' : ''}</td>`;
+      }
+      html += '</tr>';
+
+      html += '<tr><th>Roulement</th>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const isSemA = configWeekA.includes(dateStr);
+        html += `<td class="bg-semaine">${isSemA ? 'SEM. A' : 'SEM. B'}</td>`;
+      }
+      html += '</tr>';
+
+      const guides = ['Yohann', 'Shannone', 'Gérard', 'Vincent'];
+      guides.forEach(guide => {
+        html += `<tr><th>${guide}</th>`;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const key = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}-${guide}`;
+          const cellData = planningData[key] || { status: 'repos', label: '' };
+          const isFerie = ferieDays.includes(`${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+          
+          let bgClass = cellData.status === 'repos' ? 'bg-repos' : 'bg-travail';
+          if (isFerie) bgClass = 'bg-fermeture';
+
+          html += `<td class="cell-clickable ${bgClass}" onclick="clickPlanningCell('${key}')">
+            <span class="tag-label">${cellData.label || ''}</span>
+          </td>`;
+        }
+        html += '</tr>';
+      });
+
+      html += '<tr><th style="color:var(--rouge-volcan)">Moi (Inès)</th>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const key = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}-Moi`;
+        const cellData = planningData[key] || { status: 'travail', label: '' };
+        const isFerie = ferieDays.includes(`${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+        
+        let bgClass = cellData.status === 'travail' ? 'bg-moi' : 'bg-repos';
+        if (isFerie) bgClass = 'bg-fermeture';
+
+        html += `<td class="cell-clickable ${bgClass}" onclick="clickPlanningCell('${key}')">
+          <span class="tag-label">${cellData.label || ''}</span>
+        </td>`;
+      }
+      html += '</tr>';
+
+      document.getElementById('planning-grid').innerHTML = html;
+    }
+
+    async function clickPlanningCell(key) {
+      const current = planningData[key] || { status: 'travail', label: '' };
+      const action = prompt("Modifier la cellule :\n1 = Basculer Présent/Repos\n2 = Changer l'étiquette (CP, R, F, FIN CONTRAT)", current.label);
+
+      if (action === '1') {
+        current.status = current.status === 'repos' ? 'travail' : 'repos';
+      } else if (action !== null && action !== '1') {
+        current.label = action.toUpperCase();
+      }
+
+      const { error } = await db.from('planning').upsert({ key, status: current.status, label: current.label });
+      if (!error) {
+        planningData[key] = current;
+        renderPlanning();
+      }
+    }
+
+    function openPlanningConfig() {
+      const ferie = prompt("Date du jour de fermeture exceptionnelle (ex: 2026-08-15) :", ferieDays[0] || '');
+      if (ferie) ferieDays = [ferie];
+
+      const vacStart = prompt("Début vacances (YYYY-MM-DD) :", configVacances.start);
+      const vacEnd = prompt("Fin vacances (YYYY-MM-DD) :", configVacances.end);
+      if (vacStart && vacEnd) configVacances = { start: vacStart, end: vacEnd };
+
+      renderPlanning();
+    }
+
+    // INITIALISATION
+    document.addEventListener('DOMContentLoaded', () => {
+      checkUserSession();
+    });
+  </script>
+</body>
+</html>
