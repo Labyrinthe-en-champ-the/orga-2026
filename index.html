@@ -20,7 +20,10 @@
       --gris-fond: #EAE6DF;
       --gris-texte: #555555;
       --gris-repos: #A0A0A0;
-      --ombre: 0 4px 6px rgba(0,0,0,0.1);
+      --ombre: 0 6px 15px rgba(0,0,0,0.08);
+      --radius-card: 16px;
+      --radius-btn: 10px;
+      --radius-input: 10px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -45,9 +48,9 @@
 
     .login-card {
       background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      padding: 35px 30px;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
       width: 100%;
       max-width: 400px;
       text-align: center;
@@ -56,7 +59,7 @@
     .login-card h2 {
       color: var(--vert-vegetal);
       margin-bottom: 20px;
-      font-size: 1.4rem;
+      font-size: 1.5rem;
     }
 
     /* EN-TÊTE ET NAVIGATION */
@@ -82,11 +85,13 @@
       display: flex;
       background-color: #163629;
       box-shadow: var(--ombre);
+      padding: 5px;
+      gap: 5px;
     }
 
     .tab-btn {
       flex: 1;
-      padding: 15px 10px;
+      padding: 14px 10px;
       border: none;
       background: none;
       color: var(--blanc-creme);
@@ -95,6 +100,8 @@
       cursor: pointer;
       min-height: 48px;
       text-align: center;
+      border-radius: var(--radius-btn);
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
     .tab-btn.active {
@@ -104,8 +111,8 @@
 
     main {
       flex: 1;
-      padding: 15px;
-      max-width: 1400px;
+      padding: 20px 15px;
+      max-width: 1200px;
       margin: 0 auto;
       width: 100%;
     }
@@ -116,84 +123,108 @@
     /* FORMULAIRES ET BOUTONS */
     .card {
       background: white;
-      border-radius: 8px;
-      padding: 15px;
+      border-radius: var(--radius-card);
+      padding: 20px;
       margin-bottom: 20px;
       box-shadow: var(--ombre);
-      border: 1px solid #E2DCD2;
+      border: 1px solid #EADBCE;
     }
 
-    .card h2 { color: var(--vert-vegetal); font-size: 1.1rem; margin-bottom: 12px; border-bottom: 2px solid var(--jaune-the); padding-bottom: 5px; }
+    .card h2 { color: var(--vert-vegetal); font-size: 1.15rem; margin-bottom: 14px; border-bottom: 2px solid var(--jaune-the); padding-bottom: 6px; }
 
-    .form-group { margin-bottom: 12px; text-align: left; }
-    .form-group label { display: block; margin-bottom: 4px; font-weight: bold; font-size: 0.9rem; }
+    .form-group { margin-bottom: 14px; text-align: left; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: #444; }
     .form-control {
       width: 100%;
-      padding: 10px;
+      padding: 10px 14px;
       border: 1px solid #CCC;
-      border-radius: 6px;
+      border-radius: var(--radius-input);
       font-size: 1rem;
-      min-height: 44px;
+      min-height: 46px;
+      background-color: #FAFAFA;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--vert-vegetal);
+      background-color: #FFF;
     }
 
     .btn {
       background-color: var(--vert-vegetal);
       color: white;
       border: none;
-      padding: 12px 20px;
-      border-radius: 6px;
+      padding: 12px 22px;
+      border-radius: var(--radius-btn);
       cursor: pointer;
       font-weight: bold;
       font-size: 1rem;
-      min-height: 44px;
+      min-height: 46px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      transition: opacity 0.2s ease, transform 0.1s ease;
     }
+
+    .btn:active { transform: scale(0.98); }
 
     .btn-danger { background-color: var(--rouge-volcan); }
     .btn-secondary { background-color: var(--bois-clair); }
-    .btn-logout { background-color: transparent; border: 1px solid white; color: white; padding: 5px 10px; min-height: 32px; font-size: 0.85rem; border-radius: 4px; cursor: pointer; }
+    .btn-logout { background-color: transparent; border: 1px solid white; color: white; padding: 6px 12px; min-height: 34px; font-size: 0.85rem; border-radius: var(--radius-btn); cursor: pointer; }
 
     /* FILTRES TÂCHES */
     .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
-    .filter-btn { background-color: #E2DCD2; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 600; min-height: 44px; }
+    .filter-btn { background-color: #EADBCE; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 600; min-height: 44px; color: #333; transition: all 0.2s; }
     .filter-btn.active { background-color: var(--vert-vegetal); color: white; }
 
     /* KANBAN */
-    .kanban-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; }
-    .kanban-col { background: var(--gris-fond); border-radius: 8px; padding: 12px; }
-    .kanban-col h3 { font-size: 1rem; color: var(--vert-vegetal); margin-bottom: 10px; text-align: center; }
-    .task-card { background: white; border-radius: 6px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid var(--vert-vegetal); }
+    .kanban-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+    .kanban-col { background: var(--gris-fond); border-radius: var(--radius-card); padding: 14px; }
+    .kanban-col h3 { font-size: 1rem; color: var(--vert-vegetal); margin-bottom: 12px; text-align: center; font-weight: 700; }
+    
+    .task-card { 
+      background: white; 
+      border-radius: 12px; 
+      padding: 14px; 
+      margin-bottom: 12px; 
+      box-shadow: 0 3px 8px rgba(0,0,0,0.05); 
+      border-left: 6px solid var(--vert-vegetal); 
+    }
     .task-card.urgent { border-left-color: var(--rouge-volcan); }
-    .task-title { font-weight: bold; font-size: 1rem; margin-bottom: 6px; }
-    .task-meta { font-size: 0.85rem; color: var(--gris-texte); margin-bottom: 10px; }
+    .task-title { font-weight: bold; font-size: 1rem; margin-bottom: 6px; color: #2C2C2C; }
+    .task-meta { font-size: 0.85rem; color: var(--gris-texte); margin-bottom: 12px; }
     .task-actions { display: flex; justify-content: space-between; gap: 5px; }
-    .btn-sm { padding: 6px 10px; font-size: 0.85rem; min-height: 38px; border-radius: 4px; border: none; cursor: pointer; }
+    .btn-sm { padding: 6px 12px; font-size: 0.85rem; min-height: 38px; border-radius: var(--radius-btn); border: none; cursor: pointer; font-weight: bold; }
 
     /* JOURNAL */
-    .msg-card { background: white; border-radius: 6px; padding: 12px; margin-bottom: 10px; border-left: 4px solid var(--jaune-the); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .msg-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem; margin-bottom: 6px; }
-    .msg-body { margin-bottom: 10px; font-size: 0.95rem; }
+    .msg-card { 
+      background: white; 
+      border-radius: 12px; 
+      padding: 14px; 
+      margin-bottom: 12px; 
+      border-left: 5px solid var(--jaune-the); 
+      box-shadow: 0 3px 8px rgba(0,0,0,0.05); 
+    }
+    .msg-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem; margin-bottom: 8px; color: var(--vert-vegetal); }
+    .msg-body { margin-bottom: 12px; font-size: 0.95rem; line-height: 1.4; }
 
-    details summary { cursor: pointer; font-weight: bold; padding: 10px; background: #E2DCD2; border-radius: 6px; margin-top: 15px; }
+    details summary { cursor: pointer; font-weight: bold; padding: 12px 16px; background: #EADBCE; border-radius: 12px; margin-top: 15px; color: #333; }
 
-    /* PLANNING */
-    .planning-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-    .table-container { overflow-x: auto; background: white; border-radius: 8px; box-shadow: var(--ombre); border: 1px solid #CCC; max-width: 100%; }
-    table.planning-table { border-collapse: collapse; width: 100%; min-width: 1000px; text-align: center; font-size: 0.85rem; }
-    table.planning-table th, table.planning-table td { border: 1px solid #DDD; padding: 4px 2px; min-width: 32px; max-width: 38px; height: 38px; position: relative; }
-    table.planning-table th:first-child, table.planning-table td:first-child { position: sticky; left: 0; background: white; z-index: 2; min-width: 120px; text-align: left; padding-left: 8px; font-weight: bold; border-right: 2px solid #888; }
+    /* POSTES ET MISSIONS DU JOUR */
+    .role-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #F8F5F0;
+      padding: 14px 18px;
+      border-radius: 14px;
+      border-left: 6px solid var(--vert-vegetal);
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
 
-    .bg-weekend { background-color: var(--jaune-clair) !important; }
-    .bg-fermeture { background-color: var(--rouge-volcan) !important; color: white; font-weight: bold; }
-    .bg-vacances { background-color: #8FD14F !important; color: #111; font-weight: bold; }
-    .bg-semaine { background-color: #FFF2CC; font-weight: bold; }
-    .bg-repos { background-color: var(--gris-repos) !important; color: white; }
-    .bg-travail { background-color: #FFFFFF; }
-    .bg-moi { background-color: var(--jaune-the) !important; font-weight: bold; }
-    .tag-label { font-size: 0.7rem; font-weight: bold; display: block; line-height: 1; word-break: break-all; }
-    .cell-clickable { cursor: pointer; user-select: none; }
     .hidden { display: none !important; }
   </style>
 </head>
@@ -203,7 +234,7 @@
   <div id="login-screen">
     <div class="login-card">
       <h2>🌿 Connexion Guichet</h2>
-      <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666;">Entrez vos identifiants d'équipe</p>
+      <p style="margin-bottom: 20px; font-size: 0.9rem; color: #666;">Entrez vos identifiants d'équipe</p>
       <form id="form-login" onsubmit="handleLogin(event)">
         <div class="form-group">
           <label>E-mail</label>
@@ -213,7 +244,7 @@
           <label>Mot de passe</label>
           <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
         </div>
-        <p id="login-error" style="color: var(--rouge-volcan); font-size: 0.85rem; margin-bottom: 10px; display: none;"></p>
+        <p id="login-error" style="color: var(--rouge-volcan); font-size: 0.85rem; margin-bottom: 12px; display: none; font-weight: bold;"></p>
         <button type="submit" class="btn" style="width: 100%;">Se connecter</button>
       </form>
     </div>
@@ -232,7 +263,7 @@
     <nav>
       <button class="tab-btn active" onclick="switchTab('tab1', event)">📋 Suivi des tâches</button>
       <button class="tab-btn" onclick="switchTab('tab2', event)">📖 Journal d'accueil</button>
-      <button class="tab-btn" onclick="switchTab('tab3', event)">📅 Planning</button>
+      <button class="tab-btn" onclick="switchTab('tab3', event)">📌 Rôles & Missions</button>
     </nav>
 
     <main>
@@ -241,7 +272,7 @@
         <div class="card">
           <h2>Ajouter une tâche</h2>
           <form id="form-task" onsubmit="addTask(event)">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
               <div class="form-group">
                 <label>Titre de la tâche</label>
                 <input type="text" id="task-title" class="form-control" placeholder="ex: Réapprovisionner le thé" required>
@@ -306,7 +337,7 @@
         <div class="card">
           <h2>Nouveau message / Transmission</h2>
           <form id="form-journal" onsubmit="addJournalMsg(event)">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
               <div class="form-group">
                 <label>De (Mon nom)</label>
                 <select id="msg-author" class="form-control">
@@ -337,8 +368,8 @@
           </form>
         </div>
 
-        <h2>Messages en cours</h2>
-        <div id="active-messages" style="margin-top: 10px;"></div>
+        <h2 style="color: var(--vert-vegetal); margin: 15px 0 10px 0;">Messages en cours</h2>
+        <div id="active-messages"></div>
 
         <details>
           <summary>📂 Voir les messages traités (Archivés)</summary>
@@ -346,20 +377,18 @@
         </details>
       </div>
 
-      <!-- ONGLET 3 : PLANNING -->
+      <!-- ONGLET 3 : RÔLES & MISSIONS DU JOUR -->
       <div id="tab3" class="tab-content">
-        <div class="planning-controls">
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <label><strong>Mois / Année :</strong></label>
-            <input type="month" id="planning-month" class="form-control" value="2026-08" onchange="renderPlanning()">
+        <div class="card">
+          <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 18px; flex-wrap: wrap;">
+            <label style="font-weight: bold; font-size: 1rem;">🗓️ Choisir la Date :</label>
+            <input type="date" id="planning-date" class="form-control" style="width: auto; font-weight: bold;" onchange="renderPlanning()">
           </div>
-          <button class="btn btn-secondary" onclick="openPlanningConfig()">⚙️ Éditer Vacances & Semaines A/B</button>
-        </div>
 
-        <div class="table-container">
-          <table class="planning-table" id="planning-grid">
+          <h2>Rôles & Postes de l'équipe du jour</h2>
+          <div id="daily-roles-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
             <!-- Injecté dynamiquement -->
-          </table>
+          </div>
         </div>
       </div>
     </main>
@@ -372,7 +401,6 @@
     
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Adresses autorisées uniquement
     const ALLOWED_EMAILS = ['enchampthe@gmail.com', 'communication@enchampthe.com'];
 
     // --- AUTHENTIFICATION ---
@@ -413,6 +441,11 @@
         document.getElementById('app-screen').classList.remove('hidden');
         document.getElementById('user-email-display').textContent = session.user.email;
         
+        const dateInput = document.getElementById('planning-date');
+        if (dateInput && !dateInput.value) {
+          dateInput.value = new Date().toISOString().split('T')[0];
+        }
+
         fetchTasks();
         fetchJournal();
         renderPlanning();
@@ -582,123 +615,64 @@
       }
     }
 
-    // --- PLANNING ---
+    // --- RÔLES ET MISSIONS DU JOUR ---
     let planningData = {};
-    let configVacances = { start: '2026-08-01', end: '2026-08-16' };
-    let configWeekA = ['2026-08-01', '2026-08-09'];
-    let ferieDays = ['2026-08-15'];
 
     async function fetchPlanning() {
       const { data, error } = await db.from('planning').select('*');
       if (!error && data) {
         planningData = {};
-        data.forEach(item => { planningData[item.key] = { status: item.status, label: item.label }; });
+        data.forEach(item => { planningData[item.key] = item.label; });
       }
     }
 
     async function renderPlanning() {
       await fetchPlanning();
       
-      const monthVal = document.getElementById('planning-month').value;
-      const [year, month] = monthVal.split('-').map(Number);
-      const daysInMonth = new Date(year, month, 0).getDate();
-      const daysOfWeek = ['DI', 'LU', 'MA', 'ME', 'JE', 'VE', 'SA'];
+      const dateVal = document.getElementById('planning-date').value;
+      const team = [
+        { name: 'Inès', roleDefault: 'Responsable / Gestion' },
+        { name: 'Yohann', roleDefault: 'Guide / Chef d\'équipe' },
+        { name: 'Shannone', roleDefault: 'Guide & Marketing' },
+        { name: 'Gérard', roleDefault: 'Guide' },
+        { name: 'Vincent', roleDefault: 'Guide' }
+      ];
 
-      let html = '';
+      const rolesOptions = [
+        "🌿 Visites guidées",
+        "💻 Bureau / Marketing",
+        "🎟️ Accueil / Guichet",
+        "📦 Stock & Boutique",
+        "🛠️ Entretien Labyrinthe",
+        "🌴 Repos / CP"
+      ];
 
-      html += '<tr><th>Équipe \\ Jour</th>';
-      for (let d = 1; d <= daysInMonth; d++) { html += `<th>${d}</th>`; }
-      html += '</tr>';
+      const container = document.getElementById('daily-roles-list');
+      if (!container) return;
 
-      html += '<tr><th>Jour</th>';
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const dayOfWeek = daysOfWeek[new Date(year, month - 1, d).getDay()];
-        const isWeekend = dayOfWeek === 'SA' || dayOfWeek === 'DI';
-        const isFerie = ferieDays.includes(dateStr);
-        const bgClass = isFerie ? 'bg-fermeture' : (isWeekend ? 'bg-weekend' : '');
-        html += `<td class="${bgClass}">${dayOfWeek}</td>`;
-      }
-      html += '</tr>';
+      container.innerHTML = team.map(member => {
+        const key = `${dateVal}-${member.name}`;
+        const currentRole = planningData[key] || rolesOptions[0];
 
-      html += '<tr><th style="color:var(--vert-vegetal)">Vacances</th>';
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const inVacances = dateStr >= configVacances.start && dateStr <= configVacances.end;
-        html += `<td class="${inVacances ? 'bg-vacances' : ''}">${inVacances ? 'VACANCES' : ''}</td>`;
-      }
-      html += '</tr>';
-
-      html += '<tr><th>Roulement</th>';
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const isSemA = configWeekA.includes(dateStr);
-        html += `<td class="bg-semaine">${isSemA ? 'SEM. A' : 'SEM. B'}</td>`;
-      }
-      html += '</tr>';
-
-      const guides = ['Yohann', 'Shannone', 'Gérard', 'Vincent'];
-      guides.forEach(guide => {
-        html += `<tr><th>${guide}</th>`;
-        for (let d = 1; d <= daysInMonth; d++) {
-          const key = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}-${guide}`;
-          const cellData = planningData[key] || { status: 'repos', label: '' };
-          const isFerie = ferieDays.includes(`${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
-          
-          let bgClass = cellData.status === 'repos' ? 'bg-repos' : 'bg-travail';
-          if (isFerie) bgClass = 'bg-fermeture';
-
-          html += `<td class="cell-clickable ${bgClass}" onclick="clickPlanningCell('${key}')">
-            <span class="tag-label">${cellData.label || ''}</span>
-          </td>`;
-        }
-        html += '</tr>';
-      });
-
-      html += '<tr><th style="color:var(--rouge-volcan)">Moi (Inès)</th>';
-      for (let d = 1; d <= daysInMonth; d++) {
-        const key = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}-Moi`;
-        const cellData = planningData[key] || { status: 'travail', label: '' };
-        const isFerie = ferieDays.includes(`${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
-        
-        let bgClass = cellData.status === 'travail' ? 'bg-moi' : 'bg-repos';
-        if (isFerie) bgClass = 'bg-fermeture';
-
-        html += `<td class="cell-clickable ${bgClass}" onclick="clickPlanningCell('${key}')">
-          <span class="tag-label">${cellData.label || ''}</span>
-        </td>`;
-      }
-      html += '</tr>';
-
-      document.getElementById('planning-grid').innerHTML = html;
+        return `
+          <div class="role-row">
+            <div>
+              <strong style="font-size: 1.1rem; color: var(--vert-vegetal);">${member.name}</strong>
+              <div style="font-size: 0.85rem; color: #666;">${member.roleDefault}</div>
+            </div>
+            <select class="form-control" style="width: auto; min-width: 220px; font-weight: bold;" onchange="updateMemberRole('${key}', this.value)">
+              ${rolesOptions.map(opt => `<option value="${opt}" ${currentRole === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+            </select>
+          </div>
+        `;
+      }).join('');
     }
 
-    async function clickPlanningCell(key) {
-      const current = planningData[key] || { status: 'travail', label: '' };
-      const action = prompt("Modifier la cellule :\n1 = Basculer Présent/Repos\n2 = Changer l'étiquette (CP, R, F, FIN CONTRAT)", current.label);
-
-      if (action === '1') {
-        current.status = current.status === 'repos' ? 'travail' : 'repos';
-      } else if (action !== null && action !== '1') {
-        current.label = action.toUpperCase();
-      }
-
-      const { error } = await db.from('planning').upsert({ key, status: current.status, label: current.label });
+    async function updateMemberRole(key, newRole) {
+      const { error } = await db.from('planning').upsert({ key, status: 'role', label: newRole });
       if (!error) {
-        planningData[key] = current;
-        renderPlanning();
+        planningData[key] = newRole;
       }
-    }
-
-    function openPlanningConfig() {
-      const ferie = prompt("Date du jour de fermeture exceptionnelle (ex: 2026-08-15) :", ferieDays[0] || '');
-      if (ferie) ferieDays = [ferie];
-
-      const vacStart = prompt("Début vacances (YYYY-MM-DD) :", configVacances.start);
-      const vacEnd = prompt("Fin vacances (YYYY-MM-DD) :", configVacances.end);
-      if (vacStart && vacEnd) configVacances = { start: vacStart, end: vacEnd };
-
-      renderPlanning();
     }
 
     // INITIALISATION
