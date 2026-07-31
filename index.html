@@ -248,6 +248,7 @@
     <nav>
       <button class="tab-btn active" onclick="switchTab('tab1', event)">📋 Suivi des tâches</button>
       <button class="tab-btn" onclick="switchTab('tab2', event)">📖 Journal d'accueil</button>
+      <button class="tab-btn" onclick="switchTab('tab3', event)">📅 Planning</button>
     </nav>
 
     <main>
@@ -360,6 +361,79 @@
           <div id="archived-messages" style="margin-top: 10px;"></div>
         </details>
       </div>
+
+      <!-- ONGLET 3 : PLANNING -->
+      <div id="tab3" class="tab-content">
+        <div class="card">
+          <h2>Ajouter une assignation au planning</h2>
+          <form id="form-planning" onsubmit="addPlanning(event)">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+              <div class="form-group">
+                <label>Jour</label>
+                <select id="planning-jour" class="form-control">
+                  <option value="Lundi">Lundi</option>
+                  <option value="Mardi">Mardi</option>
+                  <option value="Mercredi">Mercredi</option>
+                  <option value="Jeudi">Jeudi</option>
+                  <option value="Vendredi">Vendredi</option>
+                  <option value="Samedi">Samedi</option>
+                  <option value="Dimanche">Dimanche</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Personne</label>
+                <select id="planning-personne" class="form-control">
+                  <option value="Inès">Inès</option>
+                  <option value="Yohann">Yohann</option>
+                  <option value="Shannone">Shannone</option>
+                  <option value="Gérard">Gérard</option>
+                  <option value="Vincent">Vincent</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Statut</label>
+                <select id="planning-statut" class="form-control">
+                  <option value="Accueil">Accueil</option>
+                  <option value="Bureau">Bureau</option>
+                  <option value="Créneau Anglais">Créneau Anglais</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn" style="margin-top: 5px;">+ Ajouter au planning</button>
+          </form>
+        </div>
+
+        <div class="kanban-board">
+          <div class="kanban-col">
+            <h3>Lundi</h3>
+            <div id="day-lundi"></div>
+          </div>
+          <div class="kanban-col">
+            <h3>Mardi</h3>
+            <div id="day-mardi"></div>
+          </div>
+          <div class="kanban-col">
+            <h3>Mercredi</h3>
+            <div id="day-mercredi"></div>
+          </div>
+          <div class="kanban-col">
+            <h3>Jeudi</h3>
+            <div id="day-jeudi"></div>
+          </div>
+          <div class="kanban-col">
+            <h3>Vendredi</h3>
+            <div id="day-vendredi"></div>
+          </div>
+          <div class="kanban-col">
+            <h3>Samedi</h3>
+            <div id="day-samedi"></div>
+          </div>
+          <div class="kanban-col">
+            <h3>Dimanche</h3>
+            <div id="day-dimanche"></div>
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 
@@ -412,6 +486,7 @@
         
         fetchTasks();
         fetchJournal();
+        fetchPlanning();
       } else {
         if (session) await db.auth.signOut();
         document.getElementById('login-screen').classList.remove('hidden');
@@ -574,6 +649,71 @@
         const msg = journal.find(m => m.id === id);
         if (msg) msg.done = isDone;
         renderJournal();
+      }
+    }
+
+    // --- PLANNING ---
+    let planning = [];
+
+    async function fetchPlanning() {
+      const { data, error } = await db.from('planning').select('*').order('id', { ascending: true });
+      if (!error && data) {
+        planning = data;
+        renderPlanning();
+      }
+    }
+
+    function renderPlanning() {
+      const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+      
+      const statusColors = {
+        'Accueil': '#2e7d32',        // vert
+        'Bureau': '#d97706',         // jaune/ambre
+        'Créneau Anglais': '#0284c7' // bleu
+      };
+
+      days.forEach(day => {
+        const dayKey = day.toLowerCase();
+        const container = document.getElementById(`day-${dayKey}`);
+        if (!container) return;
+
+        const dayEntries = planning.filter(p => p.jour === day);
+
+        container.innerHTML = dayEntries.map(p => {
+          const color = statusColors[p.statut] || 'var(--vert-vegetal)';
+          return `
+            <div class="task-card" style="border-left-color: ${color};">
+              <div class="task-title">👤 ${p.personne}</div>
+              <div class="task-meta" style="color: ${color}; font-weight: bold;">${p.statut}</div>
+              <div class="task-actions">
+                <button class="btn-sm btn-danger" onclick="deletePlanning(${p.id})">🗑️ Supprimer</button>
+              </div>
+            </div>
+          `;
+        }).join('') || '<p style="color:#777; font-size:0.85rem; text-align:center;">Aucune assignation</p>';
+      });
+    }
+
+    async function addPlanning(e) {
+      e.preventDefault();
+      const newEntry = {
+        jour: document.getElementById('planning-jour').value,
+        personne: document.getElementById('planning-personne').value,
+        statut: document.getElementById('planning-statut').value
+      };
+
+      const { data, error } = await db.from('planning').insert([newEntry]).select();
+      if (!error && data) {
+        planning.push(data[0]);
+        renderPlanning();
+      }
+    }
+
+    async function deletePlanning(id) {
+      const { error } = await db.from('planning').delete().eq('id', id);
+      if (!error) {
+        planning = planning.filter(p => p.id !== id);
+        renderPlanning();
       }
     }
 
