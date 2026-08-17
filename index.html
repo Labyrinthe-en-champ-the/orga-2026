@@ -120,7 +120,7 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* FORMULAIRES & CARTES */
+    /* CARTES & FORMULAIRES */
     .card {
       background: white;
       border-radius: var(--radius-card);
@@ -266,7 +266,7 @@
     .btn-icon { background: none; border: none; cursor: pointer; padding: 4px; font-size: 0.9rem; border-radius: 4px; opacity: 0.6; }
     .btn-icon:hover { opacity: 1; background: #eee; }
 
-    /* TABLEAU DE BORD SYNTHÈSE */
+    /* PILOTAGE & SYNTHÈSE */
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
     .kpi-card { background: white; border-radius: 12px; padding: 14px; text-align: center; box-shadow: var(--ombre); border-top: 4px solid var(--vert-vegetal); }
     .kpi-card.urgent-kpi { border-top-color: var(--rouge-volcan); }
@@ -295,7 +295,7 @@
     .calendar-cell { 
       background: white; 
       border-radius: 8px; 
-      min-height: 100px; 
+      min-height: 105px; 
       padding: 6px; 
       border: 1px solid #e2ded5; 
       display: flex; 
@@ -321,7 +321,6 @@
       align-items: center;
       gap: 4px;
     }
-    .event-chip small { opacity: 0.85; font-size: 0.7rem; font-weight: normal; }
 
     /* VUE SEMAINE */
     .week-view-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
@@ -329,7 +328,7 @@
     .week-day-col.today { border: 2px solid var(--jaune-the); background: #fffbe6; }
     .week-day-title { font-weight: 700; font-size: 0.95rem; color: var(--vert-vegetal); text-align: center; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
 
-    /* MODALE (POPUP) */
+    /* MODALE */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -456,7 +455,7 @@
         <!-- FILTRES -->
         <div class="filter-bar" id="task-filters"></div>
 
-        <!-- KANBAN AVEC GLISSER-DÉPOSER -->
+        <!-- KANBAN -->
         <div class="kanban-board">
           <div class="kanban-col">
             <h3>💡 Idées / Projets</h3>
@@ -479,7 +478,6 @@
 
       <!-- ONGLET 2 : PLANNING & CALENDRIER -->
       <div id="tab2" class="tab-content">
-        <!-- FORMULAIRE D'AFFECTATION (CHAMP LIBRE POUR LA MISSION) -->
         <div class="card">
           <h2>Ajouter une mission / créneau au planning</h2>
           <form id="form-planning" onsubmit="addPlanning(event)">
@@ -493,7 +491,7 @@
                 <input type="text" id="planning-statut" class="form-control" placeholder="ex: Visite guidée, Accueil, Récolte..." required>
               </div>
               <div class="form-group">
-                <label>Horaires / Notes complémentaires</label>
+                <label>Horaires / Précisions</label>
                 <input type="text" id="planning-note" class="form-control" placeholder="ex: 9h30 - 12h (Groupe 15 pers)">
               </div>
             </div>
@@ -503,11 +501,11 @@
               <div class="team-pills-container" id="new-planning-team"></div>
             </div>
 
-            <button type="submit" class="btn">+ Enregistrer sur le planning</button>
+            <button type="submit" id="btn-save-planning" class="btn">+ Enregistrer sur le planning</button>
           </form>
         </div>
 
-        <!-- CONTROLES DU CALENDRIER & BASCULE DE VUE -->
+        <!-- CONTROLES DU CALENDRIER -->
         <div class="calendar-header-actions">
           <div style="display: flex; gap: 8px; align-items: center;">
             <button class="btn btn-secondary" onclick="navigateCalendar(-1)">◀ Précédent</button>
@@ -521,7 +519,7 @@
           </div>
         </div>
 
-        <!-- VUE MENSUELLE -->
+        <!-- VUE MOIS -->
         <div id="container-month-view">
           <div class="calendar-grid" id="calendar-days-header">
             <div class="calendar-day-header">Lun</div>
@@ -676,9 +674,10 @@
 
     const ALLOWED_EMAILS = ['enchampthe@gmail.com', 'communication@enchampthe.com'];
     const TEAM = ['Inès', 'Yohann', 'Shannone', 'Gérard', 'Vincent'];
+    const JOURS_FR = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
     let currentDate = new Date();
-    let currentCalendarView = 'month'; // 'month' ou 'week'
+    let currentCalendarView = 'month';
 
     // --- AUTHENTIFICATION ---
     async function handleLogin(e) {
@@ -739,7 +738,8 @@
       renderPills('new-task-team', 'new-task-member', ['Inès']);
       renderPills('new-planning-team', 'new-planning-member', ['Inès']);
       
-      document.getElementById('planning-date').valueAsDate = new Date();
+      const todayStr = new Date().toISOString().split('T')[0];
+      document.getElementById('planning-date').value = todayStr;
     }
 
     function renderPills(containerId, nameAttr, selected = []) {
@@ -769,7 +769,7 @@
       if (tabId === 'tab3') renderSynthese();
     }
 
-    // --- TÂCHES & GOUVERNANCE ---
+    // --- TÂCHES ---
     let tasks = [];
     let currentFilter = 'Toutes';
 
@@ -785,7 +785,6 @@
         tasks = data;
         renderTasks();
         renderSynthese();
-        renderPlanningView();
       }
     }
 
@@ -841,7 +840,7 @@
       });
     }
 
-    // Drag and drop
+    // Drag & Drop
     let draggedTaskId = null;
     function handleDragStart(e, id) { draggedTaskId = id; e.currentTarget.classList.add('dragging'); }
     function handleDragEnd(e) { e.currentTarget.classList.remove('dragging'); }
@@ -872,7 +871,9 @@
       };
 
       const { data, error } = await db.from('tasks').insert([newTask]).select();
-      if (!error && data) {
+      if (error) {
+        alert("Erreur lors de l'ajout : " + error.message);
+      } else if (data) {
         tasks.push(data[0]);
         renderTasks();
         renderSynthese();
@@ -926,7 +927,9 @@
       };
 
       const { error } = await db.from('tasks').update(updates).eq('id', id);
-      if (!error) {
+      if (error) {
+        alert("Erreur modification : " + error.message);
+      } else {
         const idx = tasks.findIndex(t => t.id === id);
         if (idx !== -1) tasks[idx] = { ...tasks[idx], ...updates };
         renderTasks();
@@ -973,7 +976,7 @@
       `).join('') || '<p style="color: #666;">Aucune tâche urgente en attente. Tout est sous contrôle ! 🎉</p>';
     }
 
-    // --- PLANNING & CALENDRIER (VUE MOIS & SEMAINE) ---
+    // --- PLANNING & CALENDRIER ---
     let planning = [];
 
     async function fetchPlanning() {
@@ -1010,7 +1013,16 @@
       }
     }
 
-    // Vue Mois
+    function getEntriesForDate(dateStr, dayName) {
+      return planning.filter(p => {
+        if (p.date_planning && p.date_planning === dateStr) return true;
+        if (p.date && p.date === dateStr) return true;
+        if (!p.date_planning && !p.date && p.jour && p.jour.toLowerCase() === dayName.toLowerCase()) return true;
+        return false;
+      });
+    }
+
+    // Vue Mensuelle
     function renderMonthCalendar() {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
@@ -1028,15 +1040,20 @@
 
       const todayStr = new Date().toISOString().split('T')[0];
 
+      // Jours du mois précédent
       for (let i = startingDay - 1; i >= 0; i--) {
         const d = daysInPrevMonth - i;
         grid.innerHTML += `<div class="calendar-cell other-month"><div class="calendar-date-number">${d}</div></div>`;
       }
 
+      // Jours du mois actuel
       for (let day = 1; day <= daysInMonth; day++) {
+        const dateObj = new Date(year, month, day);
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayName = JOURS_FR[dateObj.getDay()];
         const isToday = (dateStr === todayStr);
-        const entries = planning.filter(p => p.date_planning === dateStr);
+
+        const entries = getEntriesForDate(dateStr, dayName);
 
         let eventsHtml = entries.map(e => `
           <div class="event-chip" title="${e.personne} - ${e.statut}">
@@ -1078,9 +1095,10 @@
         const dayDate = new Date(monday);
         dayDate.setDate(monday.getDate() + i);
         const dateStr = dayDate.toISOString().split('T')[0];
+        const dayName = daysOfWeek[i];
         const isToday = (dateStr === todayStr);
 
-        const entries = planning.filter(p => p.date_planning === dateStr);
+        const entries = getEntriesForDate(dateStr, dayName);
 
         let eventsHtml = entries.map(e => `
           <div class="task-card" style="border-left-color: var(--vert-vegetal); padding: 8px; margin-bottom: 8px;">
@@ -1108,18 +1126,52 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // AJOUT AU PLANNING SÉCURISÉ
     async function addPlanning(e) {
       e.preventDefault();
+      const dateVal = document.getElementById('planning-date').value;
+      if (!dateVal) {
+        alert("Veuillez choisir une date.");
+        return;
+      }
+
+      const dateObj = new Date(dateVal + 'T00:00:00');
+      const jourNom = JOURS_FR[dateObj.getDay()];
       const selectedMembers = getSelectedPills('new-planning-member');
-      const newEntry = {
-        date_planning: document.getElementById('planning-date').value,
+
+      let payload = {
+        date_planning: dateVal,
+        jour: jourNom,
         personne: selectedMembers.join(', ') || 'Inès',
         statut: document.getElementById('planning-statut').value,
         note: document.getElementById('planning-note').value || null
       };
 
-      const { data, error } = await db.from('planning').insert([newEntry]).select();
-      if (!error && data) {
+      const btn = document.getElementById('btn-save-planning');
+      btn.textContent = "Enregistrement...";
+      btn.disabled = true;
+
+      let { data, error } = await db.from('planning').insert([payload]).select();
+
+      // Si erreur liée à une colonne non supportée, fallback automatique
+      if (error) {
+        console.warn("Première tentative échouée, tentative avec champs simples :", error.message);
+        const fallback = {
+          jour: jourNom,
+          personne: payload.personne,
+          statut: payload.statut
+        };
+        const retry = await db.from('planning').insert([fallback]).select();
+        data = retry.data;
+        error = retry.error;
+      }
+
+      btn.textContent = "+ Enregistrer sur le planning";
+      btn.disabled = false;
+
+      if (error) {
+        alert("Erreur Supabase lors de l'ajout : " + error.message);
+      } else if (data) {
         planning.push(data[0]);
         renderPlanningView();
         document.getElementById('planning-statut').value = '';
@@ -1128,8 +1180,11 @@
     }
 
     async function deletePlanning(id) {
+      if (!confirm("Voulez-vous supprimer cette entrée du planning ?")) return;
       const { error } = await db.from('planning').delete().eq('id', id);
-      if (!error) {
+      if (error) {
+        alert("Erreur de suppression : " + error.message);
+      } else {
         planning = planning.filter(p => p.id !== id);
         renderPlanningView();
       }
