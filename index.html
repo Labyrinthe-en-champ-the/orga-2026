@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Labyrinthe En-Champ-Thé - App Guichet</title>
+  <title>Labyrinthe En-Champ-Thé - App Guichet & Pilotage</title>
 
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,6 +11,8 @@
   <style>
     :root {
       --vert-vegetal: #1F4A38;
+      --vert-sombre: #133325;
+      --vert-clair: #2e7d32;
       --bois-sombre: #8B5A2B;
       --bois-clair: #C9A66B;
       --jaune-the: #E3AC3D;
@@ -20,12 +22,12 @@
       --gris-fond: #EAE6DF;
       --gris-texte: #555555;
       --ombre: 0 6px 15px rgba(0,0,0,0.08);
-      --radius-card: 16px;
-      --radius-btn: 10px;
-      --radius-input: 10px;
+      --radius-card: 14px;
+      --radius-btn: 8px;
+      --radius-input: 8px;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
 
     body {
       background-color: var(--blanc-creme);
@@ -55,52 +57,51 @@
       text-align: center;
     }
 
-    .login-card h2 {
-      color: var(--vert-vegetal);
-      margin-bottom: 20px;
-      font-size: 1.5rem;
-    }
+    .login-card h2 { color: var(--vert-vegetal); margin-bottom: 12px; font-size: 1.4rem; }
 
-    /* EN-TÊTE ET NAVIGATION */
+    /* EN-TÊTE */
     header {
       background-color: var(--vert-vegetal);
       color: var(--blanc-creme);
-      padding: 15px 20px;
+      padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: var(--ombre);
     }
 
-    header h1 { font-size: 1.3rem; font-weight: 600; }
+    header h1 { font-size: 1.2rem; font-weight: 600; }
     
     .header-user-info {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
+    /* NAVIGATION */
     nav {
       display: flex;
       background-color: #163629;
       box-shadow: var(--ombre);
-      padding: 5px;
-      gap: 5px;
+      padding: 4px;
+      gap: 4px;
+      overflow-x: auto;
     }
 
     .tab-btn {
       flex: 1;
-      padding: 14px 10px;
+      padding: 12px 10px;
       border: none;
       background: none;
       color: var(--blanc-creme);
-      font-size: 1.05rem;
+      font-size: 0.95rem;
       font-weight: bold;
       cursor: pointer;
-      min-height: 48px;
+      min-height: 44px;
       text-align: center;
       border-radius: var(--radius-btn);
-      transition: background 0.2s ease, color 0.2s ease;
+      transition: all 0.2s ease;
+      white-space: nowrap;
     }
 
     .tab-btn.active {
@@ -111,7 +112,7 @@
     main {
       flex: 1;
       padding: 20px 15px;
-      max-width: 1200px;
+      max-width: 1250px;
       margin: 0 auto;
       width: 100%;
     }
@@ -119,97 +120,241 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* FORMULAIRES ET BOUTONS */
+    /* FORMULAIRES & CARTES */
     .card {
       background: white;
       border-radius: var(--radius-card);
-      padding: 20px;
+      padding: 18px 20px;
       margin-bottom: 20px;
       box-shadow: var(--ombre);
       border: 1px solid #EADBCE;
     }
 
-    .card h2 { color: var(--vert-vegetal); font-size: 1.15rem; margin-bottom: 14px; border-bottom: 2px solid var(--jaune-the); padding-bottom: 6px; }
+    .card h2 { color: var(--vert-vegetal); font-size: 1.1rem; margin-bottom: 12px; border-bottom: 2px solid var(--jaune-the); padding-bottom: 6px; }
 
-    .form-group { margin-bottom: 14px; text-align: left; }
-    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: #444; }
+    .form-group { margin-bottom: 12px; text-align: left; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; color: #444; }
+    
     .form-control {
       width: 100%;
-      padding: 10px 14px;
+      padding: 8px 12px;
       border: 1px solid #CCC;
       border-radius: var(--radius-input);
-      font-size: 1rem;
-      min-height: 46px;
+      font-size: 0.95rem;
+      min-height: 40px;
       background-color: #FAFAFA;
-      transition: border-color 0.2s ease;
     }
 
-    .form-control:focus {
-      outline: none;
-      border-color: var(--vert-vegetal);
-      background-color: #FFF;
+    .form-control:focus { outline: none; border-color: var(--vert-vegetal); background-color: #FFF; }
+
+    /* MULTI-CHOIX DE PERSONNES (CHECKBOX PILLS) */
+    .team-pills-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .pill-checkbox {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #eee;
+      padding: 6px 12px;
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #333;
+      user-select: none;
+      transition: all 0.2s;
+    }
+
+    .pill-checkbox input { display: none; }
+    .pill-checkbox.checked {
+      background: var(--vert-vegetal);
+      color: white;
     }
 
     .btn {
       background-color: var(--vert-vegetal);
       color: white;
       border: none;
-      padding: 12px 22px;
+      padding: 10px 18px;
       border-radius: var(--radius-btn);
       cursor: pointer;
       font-weight: bold;
-      font-size: 1rem;
-      min-height: 46px;
+      font-size: 0.9rem;
+      min-height: 40px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: opacity 0.2s ease, transform 0.1s ease;
+      gap: 6px;
+      transition: opacity 0.2s, transform 0.1s;
     }
 
     .btn:active { transform: scale(0.98); }
-
     .btn-danger { background-color: var(--rouge-volcan); }
-    .btn-secondary { background-color: var(--bois-clair); }
-    .btn-logout { background-color: transparent; border: 1px solid white; color: white; padding: 6px 12px; min-height: 34px; font-size: 0.85rem; border-radius: var(--radius-btn); cursor: pointer; }
+    .btn-secondary { background-color: var(--bois-clair); color: #222; }
+    .btn-logout { background-color: transparent; border: 1px solid white; color: white; padding: 5px 10px; font-size: 0.8rem; border-radius: var(--radius-btn); cursor: pointer; }
 
     /* FILTRES TÂCHES */
     .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
-    .filter-btn { background-color: #EADBCE; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 600; min-height: 44px; color: #333; transition: all 0.2s; }
+    .filter-btn { background-color: #EADBCE; border: none; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 0.85rem; color: #333; transition: all 0.2s; }
     .filter-btn.active { background-color: var(--vert-vegetal); color: white; }
 
-    /* KANBAN */
-    .kanban-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
-    .kanban-col { background: var(--gris-fond); border-radius: var(--radius-card); padding: 14px; }
-    .kanban-col h3 { font-size: 1rem; color: var(--vert-vegetal); margin-bottom: 12px; text-align: center; font-weight: 700; }
+    /* KANBAN (DRAG & DROP) */
+    .kanban-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+    .kanban-col { 
+      background: var(--gris-fond); 
+      border-radius: var(--radius-card); 
+      padding: 12px; 
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+    }
+    .kanban-col h3 { font-size: 0.95rem; color: var(--vert-vegetal); margin-bottom: 10px; text-align: center; font-weight: 700; }
+    .kanban-dropzone { flex: 1; min-height: 120px; }
     
     .task-card { 
       background: white; 
-      border-radius: 12px; 
-      padding: 14px; 
-      margin-bottom: 12px; 
-      box-shadow: 0 3px 8px rgba(0,0,0,0.05); 
-      border-left: 6px solid var(--vert-vegetal); 
+      border-radius: 10px; 
+      padding: 12px; 
+      margin-bottom: 10px; 
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05); 
+      border-left: 5px solid var(--vert-vegetal); 
+      cursor: grab;
+      user-select: none;
+      transition: box-shadow 0.2s, transform 0.1s;
     }
+    .task-card:active { cursor: grabbing; transform: scale(0.99); }
+    .task-card.dragging { opacity: 0.35; }
     .task-card.urgent { border-left-color: var(--rouge-volcan); }
-    .task-title { font-weight: bold; font-size: 1rem; margin-bottom: 6px; color: #2C2C2C; }
-    .task-meta { font-size: 0.85rem; color: var(--gris-texte); margin-bottom: 12px; }
-    .task-actions { display: flex; justify-content: space-between; gap: 5px; }
-    .btn-sm { padding: 6px 12px; font-size: 0.85rem; min-height: 38px; border-radius: var(--radius-btn); border: none; cursor: pointer; font-weight: bold; }
+    .task-header-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 5px; }
+    .task-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; color: #2C2C2C; cursor: pointer; }
+    .task-title:hover { color: var(--bois-sombre); text-decoration: underline; }
+    .task-meta { font-size: 0.8rem; color: var(--gris-texte); margin-bottom: 6px; }
+    
+    .badge-user {
+      display: inline-block;
+      background: #EADBCE;
+      color: #333;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-right: 4px;
+      margin-bottom: 3px;
+    }
+
+    .task-doc-badge { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 4px; 
+      font-size: 0.75rem; 
+      background: #e0f2fe; 
+      color: #0369a1; 
+      padding: 3px 8px; 
+      border-radius: 6px; 
+      font-weight: 600; 
+      text-decoration: none; 
+      margin-top: 4px; 
+    }
+    .task-doc-badge:hover { background: #bae6fd; }
+
+    .task-actions { display: flex; justify-content: flex-end; gap: 4px; margin-top: 6px; }
+    .btn-icon { background: none; border: none; cursor: pointer; padding: 4px; font-size: 0.9rem; border-radius: 4px; opacity: 0.6; }
+    .btn-icon:hover { opacity: 1; background: #eee; }
+
+    /* TABLEAU DE BORD SYNTHÈSE (VUE INÈS) */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .kpi-card { background: white; border-radius: 12px; padding: 14px; text-align: center; box-shadow: var(--ombre); border-top: 4px solid var(--vert-vegetal); }
+    .kpi-card.urgent-kpi { border-top-color: var(--rouge-volcan); }
+    .kpi-value { font-size: 1.8rem; font-weight: 800; color: var(--vert-vegetal); margin: 6px 0; }
+    .kpi-label { font-size: 0.8rem; color: #666; font-weight: 600; text-transform: uppercase; }
+
+    .workload-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .workload-table th, .workload-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+    .workload-table th { background: var(--gris-fond); color: var(--vert-vegetal); font-weight: 700; }
+
+    /* CALENDRIER MENSUEL */
+    .calendar-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .calendar-day-header { text-align: center; font-weight: bold; font-size: 0.85rem; color: var(--vert-vegetal); padding: 6px 0; }
+    .calendar-cell { 
+      background: white; 
+      border-radius: 8px; 
+      min-height: 100px; 
+      padding: 6px; 
+      border: 1px solid #e2ded5; 
+      display: flex; 
+      flex-direction: column; 
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .calendar-cell:hover { background: #faf6ee; }
+    .calendar-cell.other-month { opacity: 0.35; }
+    .calendar-cell.today { border: 2px solid var(--jaune-the); background: var(--jaune-clair); }
+    .calendar-date-number { font-size: 0.8rem; font-weight: 700; color: #444; margin-bottom: 4px; }
+    .calendar-events { display: flex; flex-direction: column; gap: 3px; overflow-y: auto; max-height: 90px; }
+    
+    .event-chip { 
+      font-size: 0.72rem; 
+      padding: 2px 5px; 
+      border-radius: 4px; 
+      font-weight: 600; 
+      color: white; 
+      background: var(--vert-vegetal);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* MODALE (POPUP) */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 15px;
+    }
+    .modal-card {
+      background: white;
+      border-radius: var(--radius-card);
+      width: 100%;
+      max-width: 540px;
+      padding: 22px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      border-bottom: 2px solid var(--jaune-the);
+      padding-bottom: 6px;
+    }
+    .modal-header h3 { color: var(--vert-vegetal); font-size: 1.1rem; }
+    .modal-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #666; }
 
     /* JOURNAL */
     .msg-card { 
       background: white; 
-      border-radius: 12px; 
-      padding: 14px; 
-      margin-bottom: 12px; 
+      border-radius: 10px; 
+      padding: 12px 14px; 
+      margin-bottom: 10px; 
       border-left: 5px solid var(--jaune-the); 
-      box-shadow: 0 3px 8px rgba(0,0,0,0.05); 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.04); 
     }
-    .msg-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem; margin-bottom: 8px; color: var(--vert-vegetal); }
-    .msg-body { margin-bottom: 12px; font-size: 0.95rem; line-height: 1.4; }
+    .msg-header { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.85rem; margin-bottom: 6px; color: var(--vert-vegetal); }
+    .msg-body { margin-bottom: 8px; font-size: 0.9rem; line-height: 1.4; }
 
-    details summary { cursor: pointer; font-weight: bold; padding: 12px 16px; background: #EADBCE; border-radius: 12px; margin-top: 15px; color: #333; }
-
+    details summary { cursor: pointer; font-weight: bold; padding: 10px 14px; background: #EADBCE; border-radius: 8px; margin-top: 15px; color: #333; font-size: 0.9rem; }
     .hidden { display: none !important; }
   </style>
 </head>
@@ -219,7 +364,7 @@
   <div id="login-screen">
     <div class="login-card">
       <h2>🌿 Connexion Guichet</h2>
-      <p style="margin-bottom: 20px; font-size: 0.9rem; color: #666;">Entrez vos identifiants d'équipe</p>
+      <p style="margin-bottom: 18px; font-size: 0.85rem; color: #666;">Le Labyrinthe En-Champ-Thé</p>
       <form id="form-login" onsubmit="handleLogin(event)">
         <div class="form-group">
           <label>E-mail</label>
@@ -238,7 +383,7 @@
   <!-- APPLICATION COMPLÈTE -->
   <div id="app-screen" class="hidden">
     <header>
-      <h1>🌿 Le Labyrinthe En-Champ-Thé</h1>
+      <h1>🌿 Labyrinthe En-Champ-Thé</h1>
       <div class="header-user-info">
         <span id="user-email-display" style="font-size: 0.85rem; color: #fff;"></span>
         <button class="btn-logout" onclick="handleLogout()">Déconnexion</button>
@@ -246,114 +391,197 @@
     </header>
 
     <nav>
-      <button class="tab-btn active" onclick="switchTab('tab1', event)">📋 Suivi des tâches</button>
-      <button class="tab-btn" onclick="switchTab('tab2', event)">📖 Journal d'accueil</button>
-      <button class="tab-btn" onclick="switchTab('tab3', event)">📅 Planning</button>
+      <button class="tab-btn active" onclick="switchTab('tab1', event)">📋 Tâches (Kanban)</button>
+      <button class="tab-btn" onclick="switchTab('tab2', event)">📅 Planning & Calendrier</button>
+      <button class="tab-btn" onclick="switchTab('tab3', event)">👑 Synthèse & Pilotage (Inès)</button>
+      <button class="tab-btn" onclick="switchTab('tab4', event)">📖 Journal d'accueil</button>
     </nav>
 
     <main>
-      <!-- ONGLET 1 : TÂCHES -->
+      <!-- ONGLET 1 : TÂCHES KANBAN -->
       <div id="tab1" class="tab-content active">
         <div class="card">
-          <h2>Ajouter une tâche</h2>
+          <h2>Ajouter une tâche / action</h2>
           <form id="form-task" onsubmit="addTask(event)">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
               <div class="form-group">
-                <label>Titre de la tâche</label>
-                <input type="text" id="task-title" class="form-control" placeholder="ex: Réapprovisionner le thé" required>
-              </div>
-              <div class="form-group">
-                <label>Attribuer à</label>
-                <select id="task-assignee" class="form-control">
-                  <option value="Inès">Inès</option>
-                  <option value="Yohann">Yohann</option>
-                  <option value="Shannone">Shannone</option>
-                  <option value="Gérard">Gérard</option>
-                  <option value="Vincent">Vincent</option>
-                </select>
+                <label>Intitulé de la tâche</label>
+                <input type="text" id="task-title" class="form-control" placeholder="ex: Réapprovisionner la boutique" required>
               </div>
               <div class="form-group">
                 <label>Urgence</label>
                 <select id="task-urgency" class="form-control">
-                  <option value="Normal">Normal</option>
-                  <option value="Urgent">⚠️ Urgent</option>
+                  <option value="Normal">🟢 Normal</option>
+                  <option value="Urgent">🔴 ⚠️ Urgent / Prioritaire</option>
                 </select>
               </div>
               <div class="form-group">
-                <label>Créneau prévu</label>
-                <input type="text" id="task-slot" class="form-control" placeholder="ex: Mardi matin">
+                <label>Créneau / Jour prévu</label>
+                <input type="text" id="task-slot" class="form-control" placeholder="ex: Demain matin">
+              </div>
+              <div class="form-group">
+                <label>Lien Doc Google Drive (optionnel)</label>
+                <input type="url" id="task-doc-url" class="form-control" placeholder="https://docs.google.com/...">
               </div>
             </div>
-            <button type="submit" class="btn" style="margin-top: 5px;">+ Ajouter la tâche</button>
+
+            <div class="form-group">
+              <label>Attribuer à (sélection multiple) :</label>
+              <div class="team-pills-container" id="new-task-team"></div>
+            </div>
+
+            <button type="submit" class="btn">+ Ajouter la tâche</button>
           </form>
         </div>
 
-        <div class="filter-bar">
-          <button class="filter-btn active" onclick="filterTasks('Toutes')">Toutes les tâches</button>
-          <button class="filter-btn" onclick="filterTasks('Inès')">Mes tâches (Inès)</button>
-          <button class="filter-btn" onclick="filterTasks('Yohann')">Mes tâches (Yohann)</button>
-          <button class="filter-btn" onclick="filterTasks('Shannone')">Mes tâches (Shannone)</button>
-          <button class="filter-btn" onclick="filterTasks('Gérard')">Mes tâches (Gérard)</button>
-          <button class="filter-btn" onclick="filterTasks('Vincent')">Mes tâches (Vincent)</button>
-        </div>
+        <!-- FILTRES -->
+        <div class="filter-bar" id="task-filters"></div>
 
+        <!-- KANBAN AVEC GLISSER-DÉPOSER -->
         <div class="kanban-board">
           <div class="kanban-col">
             <h3>💡 Idées / Projets</h3>
-            <div id="col-idees"></div>
+            <div id="col-idees" class="kanban-dropzone" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'idees')"></div>
           </div>
           <div class="kanban-col">
-            <h3>🎯 À faire cette semaine</h3>
-            <div id="col-afaire"></div>
+            <h3>🎯 À faire</h3>
+            <div id="col-afaire" class="kanban-dropzone" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'afaire')"></div>
           </div>
           <div class="kanban-col">
             <h3>⏳ En cours</h3>
-            <div id="col-encours"></div>
+            <div id="col-encours" class="kanban-dropzone" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'encours')"></div>
           </div>
           <div class="kanban-col">
             <h3>✅ C'est fait !</h3>
-            <div id="col-fait"></div>
+            <div id="col-fait" class="kanban-dropzone" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'fait')"></div>
           </div>
         </div>
       </div>
 
-      <!-- ONGLET 2 : JOURNAL D'ACCUEIL -->
+      <!-- ONGLET 2 : PLANNING & CALENDRIER -->
       <div id="tab2" class="tab-content">
+        <!-- FORMULAIRE D'AFFECTATION -->
         <div class="card">
-          <h2>Nouveau message / Transmission</h2>
-          <form id="form-journal" onsubmit="addJournalMsg(event)">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+          <h2>Ajouter une assignation au planning</h2>
+          <form id="form-planning" onsubmit="addPlanning(event)">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
               <div class="form-group">
-                <label>De (Mon nom)</label>
-                <select id="msg-author" class="form-control">
-                  <option value="Inès">Inès</option>
-                  <option value="Yohann">Yohann</option>
-                  <option value="Shannone">Shannone</option>
-                  <option value="Gérard">Gérard</option>
-                  <option value="Vincent">Vincent</option>
+                <label>Date exacte</label>
+                <input type="date" id="planning-date" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Poste / Mission</label>
+                <select id="planning-statut" class="form-control">
+                  <option value="Accueil / Billetterie">Accueil / Billetterie</option>
+                  <option value="Boutique & Dégustation">Boutique & Dégustation</option>
+                  <option value="Visite Guidée">Visite Guidée</option>
+                  <option value="Bureau & Gestion">Bureau & Gestion</option>
+                  <option value="Champ de thé / Récolte">Champ de thé / Récolte</option>
+                  <option value="Autre">Autre mission</option>
                 </select>
               </div>
               <div class="form-group">
+                <label>Horaires / Précisions</label>
+                <input type="text" id="planning-note" class="form-control" placeholder="ex: 9h - 13h (Groupe 20 pers)">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Personnes assignées (sélection multiple) :</label>
+              <div class="team-pills-container" id="new-planning-team"></div>
+            </div>
+
+            <button type="submit" class="btn">+ Enregistrer l'affectation</button>
+          </form>
+        </div>
+
+        <!-- CONTROLES DU CALENDRIER MENSUEL -->
+        <div class="calendar-controls">
+          <button class="btn btn-secondary" onclick="prevMonth()">◀ Mois précédent</button>
+          <h2 id="calendar-month-title" style="color: var(--vert-vegetal); font-size: 1.2rem;">Mois Année</h2>
+          <button class="btn btn-secondary" onclick="nextMonth()">Mois suivant ▶</button>
+        </div>
+
+        <!-- GRILLE CALENDRIER MENSUEL -->
+        <div class="calendar-grid" id="calendar-days-header">
+          <div class="calendar-day-header">Lun</div>
+          <div class="calendar-day-header">Mar</div>
+          <div class="calendar-day-header">Mer</div>
+          <div class="calendar-day-header">Jeu</div>
+          <div class="calendar-day-header">Ven</div>
+          <div class="calendar-day-header">Sam</div>
+          <div class="calendar-day-header">Dim</div>
+        </div>
+        <div class="calendar-grid" id="calendar-cells" style="margin-top: 6px;"></div>
+      </div>
+
+      <!-- ONGLET 3 : SYNTHÈSE & GOUVERNANCE POUR INÈS -->
+      <div id="tab3" class="tab-content">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Actions en cours</div>
+            <div class="kpi-value" id="kpi-encours">0</div>
+          </div>
+          <div class="kpi-card urgent-kpi">
+            <div class="kpi-label">Tâches Urgentes / Alertes</div>
+            <div class="kpi-value" id="kpi-urgentes" style="color: var(--rouge-volcan);">0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Tâches Clôturées</div>
+            <div class="kpi-value" id="kpi-fait" style="color: var(--vert-clair);">0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Notes Journal Actives</div>
+            <div class="kpi-value" id="kpi-journal">0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>📊 Répartition de la charge de travail par équipier</h2>
+          <table class="workload-table">
+            <thead>
+              <tr>
+                <th>Collaborateur</th>
+                <th>À faire</th>
+                <th>En cours</th>
+                <th>Terminées</th>
+                <th>Total assigné</th>
+              </tr>
+            </thead>
+            <tbody id="workload-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h2>⚠️ Actions prioritaires à surveiller</h2>
+          <div id="urgent-tasks-list"></div>
+        </div>
+      </div>
+
+      <!-- ONGLET 4 : JOURNAL D'ACCUEIL -->
+      <div id="tab4" class="tab-content">
+        <div class="card">
+          <h2>Nouveau message / Transmission</h2>
+          <form id="form-journal" onsubmit="addJournalMsg(event)">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+              <div class="form-group">
+                <label>De (Mon nom)</label>
+                <select id="msg-author" class="form-control"></select>
+              </div>
+              <div class="form-group">
                 <label>Pour (Destinataire)</label>
-                <select id="msg-target" class="form-control">
-                  <option value="Tout le monde">📢 Tout le monde</option>
-                  <option value="Inès">Inès</option>
-                  <option value="Yohann">Yohann</option>
-                  <option value="Shannone">Shannone</option>
-                  <option value="Gérard">Gérard</option>
-                  <option value="Vincent">Vincent</option>
-                </select>
+                <select id="msg-target" class="form-control"></select>
               </div>
             </div>
             <div class="form-group">
               <label>Message / Retour client</label>
-              <textarea id="msg-text" class="form-control" rows="3" placeholder="Notez ici les remarques clients, oublis, consignes..." required></textarea>
+              <textarea id="msg-text" class="form-control" rows="3" placeholder="Notez ici les remarques clients, consignes..." required></textarea>
             </div>
             <button type="submit" class="btn">+ Publier dans le journal</button>
           </form>
         </div>
 
-        <h2 style="color: var(--vert-vegetal); margin: 15px 0 10px 0;">Messages en cours</h2>
+        <h2 style="color: var(--vert-vegetal); margin: 15px 0 10px 0; font-size: 1.1rem;">Messages en cours</h2>
         <div id="active-messages"></div>
 
         <details>
@@ -361,90 +589,71 @@
           <div id="archived-messages" style="margin-top: 10px;"></div>
         </details>
       </div>
-
-      <!-- ONGLET 3 : PLANNING -->
-      <div id="tab3" class="tab-content">
-        <div class="card">
-          <h2>Ajouter une assignation au planning</h2>
-          <form id="form-planning" onsubmit="addPlanning(event)">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-              <div class="form-group">
-                <label>Jour</label>
-                <select id="planning-jour" class="form-control">
-                  <option value="Lundi">Lundi</option>
-                  <option value="Mardi">Mardi</option>
-                  <option value="Mercredi">Mercredi</option>
-                  <option value="Jeudi">Jeudi</option>
-                  <option value="Vendredi">Vendredi</option>
-                  <option value="Samedi">Samedi</option>
-                  <option value="Dimanche">Dimanche</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Personne</label>
-                <select id="planning-personne" class="form-control">
-                  <option value="Inès">Inès</option>
-                  <option value="Yohann">Yohann</option>
-                  <option value="Shannone">Shannone</option>
-                  <option value="Gérard">Gérard</option>
-                  <option value="Vincent">Vincent</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Statut</label>
-                <select id="planning-statut" class="form-control">
-                  <option value="Accueil">Accueil</option>
-                  <option value="Bureau">Bureau</option>
-                  <option value="autre">autre</option>
-                </select>
-              </div>
-            </div>
-            <button type="submit" class="btn" style="margin-top: 5px;">+ Ajouter au planning</button>
-          </form>
-        </div>
-
-        <div class="kanban-board">
-          <div class="kanban-col">
-            <h3>Lundi</h3>
-            <div id="day-lundi"></div>
-          </div>
-          <div class="kanban-col">
-            <h3>Mardi</h3>
-            <div id="day-mardi"></div>
-          </div>
-          <div class="kanban-col">
-            <h3>Mercredi</h3>
-            <div id="day-mercredi"></div>
-          </div>
-          <div class="kanban-col">
-            <h3>Jeudi</h3>
-            <div id="day-jeudi"></div>
-          </div>
-          <div class="kanban-col">
-            <h3>Vendredi</h3>
-            <div id="day-vendredi"></div>
-          </div>
-          <div class="kanban-col">
-            <h3>Samedi</h3>
-            <div id="day-samedi"></div>
-          </div>
-          <div class="kanban-col">
-            <h3>Dimanche</h3>
-            <div id="day-dimanche"></div>
-          </div>
-        </div>
-      </div>
     </main>
+  </div>
+
+  <!-- FENÊTRE MODALE DE MODIFICATION DE TÂCHE -->
+  <div id="task-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>✏️ Modifier l'action</h3>
+        <button class="modal-close" onclick="closeTaskModal()">✖</button>
+      </div>
+      <form id="form-edit-task" onsubmit="saveTaskEdit(event)">
+        <input type="hidden" id="edit-task-id">
+        
+        <div class="form-group">
+          <label>Titre</label>
+          <input type="text" id="edit-task-title" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label>Attribuer à (Multi-assignation) :</label>
+          <div class="team-pills-container" id="edit-task-team"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label>Urgence</label>
+            <select id="edit-task-urgency" class="form-control">
+              <option value="Normal">🟢 Normal</option>
+              <option value="Urgent">🔴 ⚠️ Urgent</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Créneau / Échéance</label>
+            <input type="text" id="edit-task-slot" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Lien Google Docs / Drive</label>
+          <input type="url" id="edit-task-doc-url" class="form-control" placeholder="https://docs.google.com/...">
+        </div>
+
+        <div class="form-group">
+          <label>Description détaillée / Consignes</label>
+          <textarea id="edit-task-desc" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px;">
+          <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">Annuler</button>
+          <button type="submit" class="btn">Enregistrer les modifications</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script>
     // --- CONFIGURATION SUPABASE ---
     const SUPABASE_URL = "https://xifeisrncrzlqomogznd.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_Lxil2KnGsRLJOw-CdEBgeA_IFz4w_Sq";
-    
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const ALLOWED_EMAILS = ['enchampthe@gmail.com', 'communication@enchampthe.com'];
+    const TEAM = ['Inès', 'Yohann', 'Shannone', 'Gérard', 'Vincent'];
+
+    let currentDate = new Date(); // Date de référence pour le calendrier
 
     // --- AUTHENTIFICATION ---
     async function handleLogin(e) {
@@ -452,17 +661,15 @@
       const email = document.getElementById('login-email').value.trim().toLowerCase();
       const password = document.getElementById('login-password').value;
       const errEl = document.getElementById('login-error');
-
       errEl.style.display = 'none';
 
       if (!ALLOWED_EMAILS.includes(email)) {
-        errEl.textContent = "Accès refusé : Adresse e-mail non autorisée.";
+        errEl.textContent = "Accès refusé : Adresse non autorisée.";
         errEl.style.display = 'block';
         return;
       }
 
       const { data, error } = await db.auth.signInWithPassword({ email, password });
-
       if (error) {
         errEl.textContent = "Échec de connexion : " + error.message;
         errEl.style.display = 'block';
@@ -478,12 +685,12 @@
 
     async function checkUserSession() {
       const { data: { session } } = await db.auth.getSession();
-      
       if (session && ALLOWED_EMAILS.includes(session.user.email.toLowerCase())) {
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app-screen').classList.remove('hidden');
         document.getElementById('user-email-display').textContent = session.user.email;
         
+        initUIElements();
         fetchTasks();
         fetchJournal();
         fetchPlanning();
@@ -494,30 +701,78 @@
       }
     }
 
-    // --- NAVIGATION ONGLETS ---
+    function initUIElements() {
+      // Sélecteurs de filtres
+      const filters = document.getElementById('task-filters');
+      filters.innerHTML = `<button class="filter-btn active" onclick="filterTasks('Toutes')">Toutes</button>` +
+        TEAM.map(m => `<button class="filter-btn" onclick="filterTasks('${m}')">${m}</button>`).join('');
+
+      // Menus Journal
+      const authorSel = document.getElementById('msg-author');
+      authorSel.innerHTML = TEAM.map(m => `<option value="${m}">${m}</option>`).join('');
+      const targetSel = document.getElementById('msg-target');
+      targetSel.innerHTML = `<option value="Tout le monde">📢 Tout le monde</option>` + TEAM.map(m => `<option value="${m}">${m}</option>`).join('');
+
+      // Pastilles Multi-choix Équipe
+      renderPills('new-task-team', 'new-task-member', ['Inès']);
+      renderPills('new-planning-team', 'new-planning-member', ['Inès']);
+      
+      // Date du jour par défaut
+      document.getElementById('planning-date').valueAsDate = new Date();
+    }
+
+    function renderPills(containerId, nameAttr, selected = []) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = TEAM.map(m => {
+        const isChecked = selected.includes(m);
+        return `
+          <label class="pill-checkbox ${isChecked ? 'checked' : ''}">
+            <input type="checkbox" name="${nameAttr}" value="${m}" ${isChecked ? 'checked' : ''} onchange="this.parentElement.classList.toggle('checked', this.checked)">
+            👤 ${m}
+          </label>
+        `;
+      }).join('');
+    }
+
+    function getSelectedPills(nameAttr) {
+      const checked = Array.from(document.querySelectorAll(`input[name="${nameAttr}"]:checked`));
+      return checked.map(c => c.value);
+    }
+
     function switchTab(tabId, event) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       if (event) event.target.classList.add('active');
+      if (tabId === 'tab2') renderCalendar();
+      if (tabId === 'tab3') renderSynthese();
     }
 
-    // --- TÂCHES ---
+    // --- TÂCHES & GOUVERNANCE ---
     let tasks = [];
     let currentFilter = 'Toutes';
+
+    // Rétrocompatibilité : transforme un assignee simple "Inès" ou multiple "Inès, Yohann" en tableau
+    function parseAssignees(assignee) {
+      if (!assignee) return [];
+      if (Array.isArray(assignee)) return assignee;
+      return assignee.split(',').map(s => s.trim());
+    }
 
     async function fetchTasks() {
       const { data, error } = await db.from('tasks').select('*');
       if (!error && data) {
         tasks = data;
         renderTasks();
+        renderSynthese();
+        renderCalendar();
       }
     }
 
-    function filterTasks(author) {
-      currentFilter = author;
+    function filterTasks(name) {
+      currentFilter = name;
       document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.textContent.includes(author) || (author==='Toutes' && btn.textContent.includes('Toutes')));
+        btn.classList.toggle('active', btn.textContent.trim() === name);
       });
       renderTasks();
     }
@@ -525,37 +780,74 @@
     function renderTasks() {
       const cols = { idees: [], afaire: [], encours: [], fait: [] };
       tasks.forEach(t => {
-        if (currentFilter === 'Toutes' || t.assignee === currentFilter) {
+        const assignees = parseAssignees(t.assignee);
+        if (currentFilter === 'Toutes' || assignees.includes(currentFilter)) {
           if (cols[t.status]) cols[t.status].push(t);
         }
       });
 
       const colIds = { idees: 'col-idees', afaire: 'col-afaire', encours: 'col-encours', fait: 'col-fait' };
-      const statusList = ['idees', 'afaire', 'encours', 'fait'];
 
       Object.keys(colIds).forEach(status => {
         const container = document.getElementById(colIds[status]);
-        container.innerHTML = cols[status].map(t => `
-          <div class="task-card ${t.urgency === 'Urgent' ? 'urgent' : ''}">
-            <div class="task-title">${t.urgency === 'Urgent' ? '⚠️ ' : ''}${t.title}</div>
-            <div class="task-meta">👤 ${t.assignee} | 🕒 ${t.slot || 'Non défini'}</div>
-            <div class="task-actions">
-              ${status !== 'idees' ? `<button class="btn-sm btn-secondary" onclick="moveTask(${t.id}, '${statusList[statusList.indexOf(status)-1]}')">◀</button>` : '<span></span>'}
-              <button class="btn-sm btn-danger" onclick="deleteTask(${t.id})">🗑️</button>
-              ${status !== 'fait' ? `<button class="btn-sm btn-secondary" onclick="moveTask(${t.id}, '${statusList[statusList.indexOf(status)+1]}')">▶</button>` : '<span></span>'}
+        container.innerHTML = cols[status].map(t => {
+          const assignees = parseAssignees(t.assignee);
+          return `
+            <div class="task-card ${t.urgency === 'Urgent' ? 'urgent' : ''}" 
+                 draggable="true" 
+                 ondragstart="handleDragStart(event, ${t.id})"
+                 ondragend="handleDragEnd(event)">
+              
+              <div class="task-header-row">
+                <div class="task-title" onclick="openTaskModal(${t.id})">
+                  ${t.urgency === 'Urgent' ? '⚠️ ' : ''}${t.title}
+                </div>
+                <div class="task-actions">
+                  <button class="btn-icon" title="Modifier" onclick="openTaskModal(${t.id})">✏️</button>
+                  <button class="btn-icon" title="Supprimer" onclick="deleteTask(${t.id})">🗑️</button>
+                </div>
+              </div>
+
+              <div style="margin: 4px 0;">
+                ${assignees.map(a => `<span class="badge-user">${a}</span>`).join('')}
+              </div>
+
+              <div class="task-meta">🕒 ${t.slot || 'Non défini'}</div>
+              
+              ${t.doc_url ? `<a href="${t.doc_url}" target="_blank" class="task-doc-badge" onclick="event.stopPropagation()">🔗 Document Google Drive</a>` : ''}
             </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       });
+    }
+
+    // Drag and drop
+    let draggedTaskId = null;
+    function handleDragStart(e, id) { draggedTaskId = id; e.currentTarget.classList.add('dragging'); }
+    function handleDragEnd(e) { e.currentTarget.classList.remove('dragging'); }
+    function allowDrop(e) { e.preventDefault(); }
+    async function handleDrop(e, newStatus) {
+      e.preventDefault();
+      if (!draggedTaskId) return;
+      const task = tasks.find(t => t.id === draggedTaskId);
+      if (task && task.status !== newStatus) {
+        task.status = newStatus;
+        renderTasks();
+        renderSynthese();
+        await db.from('tasks').update({ status: newStatus }).eq('id', draggedTaskId);
+      }
+      draggedTaskId = null;
     }
 
     async function addTask(e) {
       e.preventDefault();
+      const selectedMembers = getSelectedPills('new-task-member');
       const newTask = {
         title: document.getElementById('task-title').value,
-        assignee: document.getElementById('task-assignee').value,
+        assignee: selectedMembers.join(', ') || 'Inès',
         urgency: document.getElementById('task-urgency').value,
         slot: document.getElementById('task-slot').value,
+        doc_url: document.getElementById('task-doc-url').value || null,
         status: 'afaire'
       };
 
@@ -563,24 +855,186 @@
       if (!error && data) {
         tasks.push(data[0]);
         renderTasks();
+        renderSynthese();
         e.target.reset();
-      }
-    }
-
-    async function moveTask(id, newStatus) {
-      const { error } = await db.from('tasks').update({ status: newStatus }).eq('id', id);
-      if (!error) {
-        const task = tasks.find(t => t.id === id);
-        if (task) task.status = newStatus;
-        renderTasks();
+        renderPills('new-task-team', 'new-task-member', ['Inès']);
       }
     }
 
     async function deleteTask(id) {
+      if (!confirm("Voulez-vous supprimer cette tâche ?")) return;
       const { error } = await db.from('tasks').delete().eq('id', id);
       if (!error) {
         tasks = tasks.filter(t => t.id !== id);
         renderTasks();
+        renderSynthese();
+      }
+    }
+
+    // ÉDITION MODALE
+    function openTaskModal(id) {
+      const t = tasks.find(item => item.id === id);
+      if (!t) return;
+
+      document.getElementById('edit-task-id').value = t.id;
+      document.getElementById('edit-task-title').value = t.title || '';
+      document.getElementById('edit-task-urgency').value = t.urgency || 'Normal';
+      document.getElementById('edit-task-slot').value = t.slot || '';
+      document.getElementById('edit-task-doc-url').value = t.doc_url || '';
+      document.getElementById('edit-task-desc').value = t.description || '';
+
+      const assignees = parseAssignees(t.assignee);
+      renderPills('edit-task-team', 'edit-task-member', assignees);
+
+      document.getElementById('task-modal').classList.remove('hidden');
+    }
+
+    function closeTaskModal() { document.getElementById('task-modal').classList.add('hidden'); }
+
+    async function saveTaskEdit(e) {
+      e.preventDefault();
+      const id = parseInt(document.getElementById('edit-task-id').value);
+      const selectedMembers = getSelectedPills('edit-task-member');
+
+      const updates = {
+        title: document.getElementById('edit-task-title').value,
+        assignee: selectedMembers.join(', ') || 'Inès',
+        urgency: document.getElementById('edit-task-urgency').value,
+        slot: document.getElementById('edit-task-slot').value,
+        doc_url: document.getElementById('edit-task-doc-url').value || null,
+        description: document.getElementById('edit-task-desc').value || null
+      };
+
+      const { error } = await db.from('tasks').update(updates).eq('id', id);
+      if (!error) {
+        const idx = tasks.findIndex(t => t.id === id);
+        if (idx !== -1) tasks[idx] = { ...tasks[idx], ...updates };
+        renderTasks();
+        renderSynthese();
+        closeTaskModal();
+      }
+    }
+
+    // --- SYNTHÈSE & PILOTAGE POUR INÈS ---
+    function renderSynthese() {
+      const encours = tasks.filter(t => t.status === 'encours').length;
+      const urgentes = tasks.filter(t => t.urgency === 'Urgent' && t.status !== 'fait').length;
+      const fait = tasks.filter(t => t.status === 'fait').length;
+      const notesActives = journal.filter(m => !m.done).length;
+
+      document.getElementById('kpi-encours').textContent = encours;
+      document.getElementById('kpi-urgentes').textContent = urgentes;
+      document.getElementById('kpi-fait').textContent = fait;
+      document.getElementById('kpi-journal').textContent = notesActives;
+
+      // Charge par équipier
+      const tbody = document.getElementById('workload-tbody');
+      tbody.innerHTML = TEAM.map(member => {
+        const mTasks = tasks.filter(t => parseAssignees(t.assignee).includes(member));
+        const countAf = mTasks.filter(t => t.status === 'afaire').length;
+        const countEc = mTasks.filter(t => t.status === 'encours').length;
+        const countFt = mTasks.filter(t => t.status === 'fait').length;
+        return `
+          <tr>
+            <td><strong>👤 ${member}</strong></td>
+            <td><span style="color: #d97706; font-weight: bold;">${countAf}</span></td>
+            <td><span style="color: #2563eb; font-weight: bold;">${countEc}</span></td>
+            <td><span style="color: #16a34a; font-weight: bold;">${countFt}</span></td>
+            <td><strong>${mTasks.length}</strong></td>
+          </tr>
+        `;
+      }).join('');
+
+      // Liste des urgences
+      const urgentList = document.getElementById('urgent-tasks-list');
+      const urgentTasks = tasks.filter(t => t.urgency === 'Urgent' && t.status !== 'fait');
+      urgentList.innerHTML = urgentTasks.map(t => `
+        <div style="padding: 10px; border-left: 4px solid var(--rouge-volcan); background: #fff5f5; border-radius: 6px; margin-bottom: 8px;">
+          <strong>⚠️ ${t.title}</strong> — Assigné à : ${t.assignee} | <em>Créneau : ${t.slot || 'Non fixé'}</em>
+        </div>
+      `).join('') || '<p style="color: #666;">Aucune tâche urgente en attente. Tout est sous contrôle ! 🎉</p>';
+    }
+
+    // --- PLANNING & CALENDRIER MENSUEL ---
+    let planning = [];
+
+    async function fetchPlanning() {
+      const { data, error } = await db.from('planning').select('*');
+      if (!error && data) {
+        planning = data;
+        renderCalendar();
+      }
+    }
+
+    function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); }
+    function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); }
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+      document.getElementById('calendar-month-title').textContent = `${monthNames[month]} ${year}`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const startingDay = (firstDay === 0) ? 6 : firstDay - 1; // Ajustement Lundi = 0
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+      const grid = document.getElementById('calendar-cells');
+      grid.innerHTML = '';
+
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      // Jours du mois précédent
+      for (let i = startingDay - 1; i >= 0; i--) {
+        const d = daysInPrevMonth - i;
+        grid.innerHTML += `<div class="calendar-cell other-month"><div class="calendar-date-number">${d}</div></div>`;
+      }
+
+      // Jours du mois actuel
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isToday = (dateStr === todayStr);
+
+        // Récupération des assignations planning pour ce jour
+        const entries = planning.filter(p => p.date_planning === dateStr);
+
+        let eventsHtml = entries.map(e => `
+          <div class="event-chip" title="${e.personne} - ${e.statut}">
+            👤 ${e.personne} (${e.statut.split('/')[0]})
+          </div>
+        `).join('');
+
+        grid.innerHTML += `
+          <div class="calendar-cell ${isToday ? 'today' : ''}" onclick="quickSelectDate('${dateStr}')">
+            <div class="calendar-date-number">${day}</div>
+            <div class="calendar-events">${eventsHtml}</div>
+          </div>
+        `;
+      }
+    }
+
+    function quickSelectDate(dateStr) {
+      document.getElementById('planning-date').value = dateStr;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function addPlanning(e) {
+      e.preventDefault();
+      const selectedMembers = getSelectedPills('new-planning-member');
+      const newEntry = {
+        date_planning: document.getElementById('planning-date').value,
+        personne: selectedMembers.join(', ') || 'Inès',
+        statut: document.getElementById('planning-statut').value,
+        note: document.getElementById('planning-note').value || null
+      };
+
+      const { data, error } = await db.from('planning').insert([newEntry]).select();
+      if (!error && data) {
+        planning.push(data[0]);
+        renderCalendar();
+        document.getElementById('planning-note').value = '';
       }
     }
 
@@ -592,6 +1046,7 @@
       if (!error && data) {
         journal = data;
         renderJournal();
+        renderSynthese();
       }
     }
 
@@ -605,11 +1060,11 @@
       activeDiv.innerHTML = active.map(m => `
         <div class="msg-card">
           <div class="msg-header">
-            <span>De : ${m.author} ➡️ Pour : ${m.target}</span>
-            <small>${m.date}</small>
+            <span>De : <strong>${m.author}</strong> ➡️ Pour : <strong>${m.target}</strong></span>
+            <small>${m.date || ''}</small>
           </div>
           <div class="msg-body">${m.text}</div>
-          <button class="btn-sm btn-secondary" onclick="toggleMsgDone(${m.id}, true)">✅ Marquer comme traité</button>
+          <button class="btn btn-secondary" style="font-size:0.8rem; padding: 4px 10px; min-height: 30px;" onclick="toggleMsgDone(${m.id}, true)">✅ Marquer comme traité</button>
         </div>
       `).join('') || '<p style="color:#777">Aucun message en cours.</p>';
 
@@ -617,10 +1072,10 @@
         <div class="msg-card" style="opacity: 0.7;">
           <div class="msg-header">
             <span>De : ${m.author} ➡️ Pour : ${m.target}</span>
-            <small>${m.date}</small>
+            <small>${m.date || ''}</small>
           </div>
           <div class="msg-body">${m.text}</div>
-          <button class="btn-sm btn-secondary" onclick="toggleMsgDone(${m.id}, false)">↩️ Réactiver</button>
+          <button class="btn btn-secondary" style="font-size:0.8rem; padding: 4px 10px; min-height: 30px;" onclick="toggleMsgDone(${m.id}, false)">↩️ Réactiver</button>
         </div>
       `).join('') || '<p style="color:#777">Aucun message archivé.</p>';
     }
@@ -631,7 +1086,7 @@
         author: document.getElementById('msg-author').value,
         target: document.getElementById('msg-target').value,
         text: document.getElementById('msg-text').value,
-        date: new Date().toLocaleDateString('fr-FR'),
+        date: new Date().toLocaleDateString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
         done: false
       };
 
@@ -639,6 +1094,7 @@
       if (!error && data) {
         journal.unshift(data[0]);
         renderJournal();
+        renderSynthese();
         document.getElementById('msg-text').value = '';
       }
     }
@@ -649,71 +1105,7 @@
         const msg = journal.find(m => m.id === id);
         if (msg) msg.done = isDone;
         renderJournal();
-      }
-    }
-
-    // --- PLANNING ---
-    let planning = [];
-
-    async function fetchPlanning() {
-      const { data, error } = await db.from('planning').select('*').order('id', { ascending: true });
-      if (!error && data) {
-        planning = data;
-        renderPlanning();
-      }
-    }
-
-    function renderPlanning() {
-      const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-      
-      const statusColors = {
-        'Accueil': '#2e7d32',        // vert
-        'Bureau': '#d97706',         // jaune/ambre
-        'Créneau Anglais': '#0284c7' // bleu
-      };
-
-      days.forEach(day => {
-        const dayKey = day.toLowerCase();
-        const container = document.getElementById(`day-${dayKey}`);
-        if (!container) return;
-
-        const dayEntries = planning.filter(p => p.jour === day);
-
-        container.innerHTML = dayEntries.map(p => {
-          const color = statusColors[p.statut] || 'var(--vert-vegetal)';
-          return `
-            <div class="task-card" style="border-left-color: ${color};">
-              <div class="task-title">👤 ${p.personne}</div>
-              <div class="task-meta" style="color: ${color}; font-weight: bold;">${p.statut}</div>
-              <div class="task-actions">
-                <button class="btn-sm btn-danger" onclick="deletePlanning(${p.id})">🗑️ Supprimer</button>
-              </div>
-            </div>
-          `;
-        }).join('') || '<p style="color:#777; font-size:0.85rem; text-align:center;">Aucune assignation</p>';
-      });
-    }
-
-    async function addPlanning(e) {
-      e.preventDefault();
-      const newEntry = {
-        jour: document.getElementById('planning-jour').value,
-        personne: document.getElementById('planning-personne').value,
-        statut: document.getElementById('planning-statut').value
-      };
-
-      const { data, error } = await db.from('planning').insert([newEntry]).select();
-      if (!error && data) {
-        planning.push(data[0]);
-        renderPlanning();
-      }
-    }
-
-    async function deletePlanning(id) {
-      const { error } = await db.from('planning').delete().eq('id', id);
-      if (!error) {
-        planning = planning.filter(p => p.id !== id);
-        renderPlanning();
+        renderSynthese();
       }
     }
 
